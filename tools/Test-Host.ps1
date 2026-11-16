@@ -7,6 +7,10 @@ New-Item -ItemType Directory -Force $out|Out-Null
 & "$javaHome\bin\javac.exe" -encoding UTF-8 -d $out (Join-Path $root 'neo\src\com\tvos\neo\NeoGridNavigation.java') (Join-Path $root 'neo\tests\NeoGridNavigationTest.java') (Join-Path $root 'companion\src\com\neotvos\support\AdbClient.java') (Join-Path $root 'companion\src\com\neotvos\support\CleanupPolicy.java') (Join-Path $root 'companion\tests\CompanionTest.java')
 if($LASTEXITCODE){throw 'Host compilation failed'}
 foreach($class in @('com.tvos.neo.NeoGridNavigationTest','com.neotvos.support.CompanionTest')){& "$javaHome\bin\java.exe" -cp $out $class;if($LASTEXITCODE){throw "Failed $class"}}
+& "$javaHome\bin\javac.exe" -encoding UTF-8 -d $out (Join-Path $root 'neo\src\com\tvos\neo\NeoWakePolicy.java') (Join-Path $root 'neo\tests\NeoWakePolicyTest.java')
+if($LASTEXITCODE){throw 'Wake policy compilation failed'}
+& "$javaHome\bin\java.exe" -cp $out com.tvos.neo.NeoWakePolicyTest
+if($LASTEXITCODE){throw 'Wake policy tests failed'}
 & (Join-Path $root 'neo\tests\Test-AppLocks.ps1') -JavaHome $javaHome
 & (Join-Path $root 'neo\tests\Test-NeoCLI.ps1')
 $categoryOut=Join-Path $root 'neo\test-output\categories'

@@ -16,6 +16,7 @@ final class NeoSpaceVideo extends FrameLayout implements TextureView.SurfaceText
     private final NeoEngineGlow engines;
     private MediaPlayer player;
     private boolean stopped;
+    private int resumePosition;
     NeoSpaceVideo(Context context) {
         super(context); setBackgroundColor(Color.BLACK);
         texture = new TextureView(context); texture.setSurfaceTextureListener(this);
@@ -31,6 +32,7 @@ final class NeoSpaceVideo extends FrameLayout implements TextureView.SurfaceText
     @Override public void onSurfaceTextureAvailable(SurfaceTexture source, int width, int height) {
         if (stopped) return;
         try {
+            releaseSurfacePlayer();
             player = new MediaPlayer();
             try (AssetFileDescriptor file = getContext().getAssets().openFd("neo/video/imaginary-space-v1.mp4")) {
                 player.setDataSource(file.getFileDescriptor(), file.getStartOffset(), file.getLength());
@@ -38,7 +40,7 @@ final class NeoSpaceVideo extends FrameLayout implements TextureView.SurfaceText
             Surface surface = new Surface(source);
             try { player.setSurface(surface); } finally { surface.release(); }
             player.setLooping(true); player.setVolume(0, 0);
-            player.setOnPreparedListener(media -> { if (!stopped) { resize(); media.start(); } });
+            player.setOnPreparedListener(media -> { if (!stopped) { resize(); if(resumePosition>0)media.seekTo(resumePosition);media.start(); } });
             player.setOnErrorListener((media, what, extra) -> { stop(); return true; });
             player.prepareAsync();
         } catch (Exception unavailable) { stop(); }
@@ -54,11 +56,17 @@ final class NeoSpaceVideo extends FrameLayout implements TextureView.SurfaceText
     }
     @Override public void onSurfaceTextureSizeChanged(SurfaceTexture source, int width, int height) { resize(); }
     @Override public void onSurfaceTextureUpdated(SurfaceTexture source) { }
-    @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture source) { stop(); return true; }
+    @Override public boolean onSurfaceTextureDestroyed(SurfaceTexture source) { releaseSurfacePlayer(); return true; }
+    private void releaseSurfacePlayer() {
+        if(player!=null){
+            try{resumePosition=player.getCurrentPosition();}catch(IllegalStateException unavailable){}
+            player.release();player=null;
+        }
+    }
     void stop() {
         stopped = true;
         if (engines != null) engines.stop();
-        if (player != null) { player.release(); player = null; }
+        releaseSurfacePlayer();
     }
     @Override protected void onDetachedFromWindow() { stop(); super.onDetachedFromWindow(); }
 }

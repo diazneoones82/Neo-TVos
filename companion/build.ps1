@@ -22,7 +22,7 @@ Copy-Item -LiteralPath $apk -Destination assets\Neo-TVLauncher.apk -Force
 New-Item -ItemType Directory -Force build\gen,build\classes,build\dex|Out-Null
 & "$bt\aapt2.exe" compile --dir res -o build\res.zip
 if($LASTEXITCODE){throw 'Resource compile failed'}
-& "$bt\aapt2.exe" link -o build\base.apk -I $android --manifest AndroidManifest.xml --java build\gen --version-code 141 --version-name '1' build\res.zip
+& "$bt\aapt2.exe" link -o build\base.apk -I $android --manifest AndroidManifest.xml --java build\gen --version-code 142 --version-name '1' build\res.zip
 if($LASTEXITCODE){throw 'Resource link failed'}
 $files=@(Get-ChildItem src,build\gen -Recurse -Filter *.java|ForEach-Object FullName)
 & "$java\javac.exe" -encoding UTF-8 --release 11 -classpath $android -d build\classes @files

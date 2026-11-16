@@ -35,6 +35,6 @@ These include grid navigation, categories, PIN/timed access, ADB protocol/cleanu
 
 The current runtime video is checked in under `neo/assets/neo/video/`. To regenerate it, install Python with `numpy`, `Pillow` and `imageio-ffmpeg`, then run `python media-sources/render-original-space.py`. It creates intermediate files under ignored `audit/`. Use `--preview` for a short QA render. Rendering can take several minutes. Asset prompts, provenance and credits are in `docs/VISUAL-CREDITS.md`.
 
-Version 1 uses Android version codes 201 (TV) and 141 (phone) so it updates the previous releases without a downgrade or data reset. Both visible version names are `1`; package identifiers and signing identities are retained.
+Version 1 uses Android version codes 202 (TV) and 142 (phone) so it updates the previous releases without a downgrade or data reset. Both visible version names are `1`; package identifiers and signing identities are retained.
 
 Check regenerated space media with `python tools/Verify-Space.py` after rendering has finished; it requires the same Python media packages and the preserved pre-scene checkpoint tag.

@@ -153,6 +153,26 @@ public final class NeoRuntimeInstrumentation extends Instrumentation {
             });
             int before=media[0].getCurrentPosition();Thread.sleep(800);
             require(media[0].getCurrentPosition()>before,"Space playback clock advances");
+            runOnMainSync(()->{
+                try{
+                    java.lang.reflect.Field field=NeoScreensaverActivity.class.getDeclaredField("view");field.setAccessible(true);
+                    NeoSpaceVideo video=(NeoSpaceVideo)field.get(current);
+                    android.view.TextureView texture=(android.view.TextureView)video.getChildAt(0);
+                    android.graphics.SurfaceTexture surface=texture.getSurfaceTexture();
+                    require(surface!=null,"Video has a live surface before standby-style loss");
+                    video.onSurfaceTextureDestroyed(surface);
+                    video.onSurfaceTextureAvailable(surface,texture.getWidth(),texture.getHeight());
+                }catch(ReflectiveOperationException error){throw new AssertionError(error);}
+            });
+            Thread.sleep(1800);
+            runOnMainSync(()->{
+                try{
+                    java.lang.reflect.Field field=NeoScreensaverActivity.class.getDeclaredField("view");field.setAccessible(true);
+                    java.lang.reflect.Field player=NeoSpaceVideo.class.getDeclaredField("player");player.setAccessible(true);
+                    media[0]=(android.media.MediaPlayer)player.get(field.get(current));
+                    require(media[0]!=null && media[0].isPlaying(),"Video recovers after a temporary surface loss");
+                }catch(ReflectiveOperationException error){throw new AssertionError(error);}
+            });
             media[0].seekTo(12000);Thread.sleep(1200);
             require(media[0].isPlaying(),"Blue-exhaust playback survives seek and remains synchronized");
             android.graphics.Bitmap capture=getUiAutomation().takeScreenshot();

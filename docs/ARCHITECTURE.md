@@ -43,3 +43,9 @@ After installing the newly built launcher on a test TV, run the device contracts
 That command installs a temporary instrumentation APK, checks provider decoding, symbols, input enumeration, worker PIDs/isolated UID, worker crash recovery, menus and actual focus visibility, then removes the test APK. It does not remove personal TV apps. Instrumentation terminates the target process; some TV firmware disables its accessibility binding afterwards. The script reopens Home and restores the Neo Home service only if it was enabled before testing, preserving unrelated services. Verify the remote Home button after a device test. Host tests cover navigation boundaries, categories, app-access intervals, PIN storage/expiry, companion ADB protocol and cleanup protection, and all CLI cancellation paths.
 
 Weather API references: [Open-Meteo](https://open-meteo.com/en/docs), [MET Norway](https://api.met.no/weatherapi/locationforecast/2.0/documentation), [wttr.in JSON](https://github.com/chubin/wttr.in#json-output). These are data services; their implementation code is not included.
+
+## Standby and dream recovery
+
+The optional Home accessibility service records whether sleep began on Home or on an unrelated app. Screen-on/unlock events request a bounded Home return only for Home-origin sleep; normal apps keep their resume destination. Pending state survives service rebinds. Neo's system dream explicitly returns to Home when its recorded origin was Home. Keyguard/System UI overlays do not overwrite the origin.
+
+The space player's temporary TextureView surface loss releases its decoder but does not permanently close the view. A replacement surface recreates playback at the saved position. Permanent disposal still releases playback and exhaust animation. This prevents a retained screensaver from staying black after its surface is recreated.
