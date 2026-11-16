@@ -23,6 +23,10 @@ try{[IO.Compression.ZipFileExtensions]::CreateEntryFromFile($zip,"$out\dex\class
 & "$($toolchain.BuildTools)\zipalign.exe" -f 4 "$out\unsigned.apk" "$out\aligned.apk"
 & "$($toolchain.JavaBin)\java.exe" -jar "$($toolchain.BuildTools)\lib\apksigner.jar" sign --ks $KeyStore --ks-pass pass:android --key-pass pass:android --out "$out\Neo-Runtime-Tests.apk" "$out\aligned.apk"
 if($LASTEXITCODE){throw 'Test signing failed'}
+$homeComponent='com.tvos.neo/com.tvos.neo.NeoHomeService'
+$beforeServices=(& $Adb -s $Serial shell settings get secure enabled_accessibility_services) -join ''
+$beforeEnabled=((& $Adb -s $Serial shell settings get secure accessibility_enabled) -join '').Trim()
+$restoreHome=($beforeEnabled -eq '1' -and ($beforeServices.Trim() -split ':') -contains $homeComponent)
 & $Adb -s $Serial install --no-incremental -r "$out\Neo-Runtime-Tests.apk"
 if($LASTEXITCODE){throw 'Test installation failed'}
 try{
@@ -30,4 +34,18 @@ try{
     $result|Tee-Object -FilePath "$out\runtime-results.txt"|Out-Host
     $summary=$result -join "`n"
     if($summary -notmatch 'PASS:' -or $summary -match 'FAIL:'){throw 'Runtime assertions failed'}
-}finally{& $Adb -s $Serial uninstall com.tvos.neo.tests|Out-Null}
+}finally{
+    & $Adb -s $Serial uninstall com.tvos.neo.tests|Out-Null
+    & $Adb -s $Serial shell am start -W -n com.tvos.neo/.NeoHomeActivity|Out-Null
+    # Instrumentation terminates the target process. Some TV firmware marks its
+    # accessibility service crashed and disables it; restore only a prior opt-in.
+    if($restoreHome){
+        $current=((& $Adb -s $Serial shell settings get secure enabled_accessibility_services) -join '').Trim()
+        $other=@($current -split ':'|Where-Object {$_ -and $_ -ne 'null' -and $_ -ne $homeComponent})
+        $without=if($other.Count){$other -join ':'}else{'null'}
+        & $Adb -s $Serial shell settings put secure enabled_accessibility_services $without|Out-Null
+        & $Adb -s $Serial shell settings put secure enabled_accessibility_services ((@($other)+@($homeComponent)) -join ':')|Out-Null
+        & $Adb -s $Serial shell settings put secure accessibility_enabled 1|Out-Null
+        Write-Output 'Restored the previously enabled Neo Home service after instrumentation; unrelated services preserved.'
+    }
+}

@@ -22,3 +22,5 @@ Only generic results are published. No device reports, serial numbers, LAN addre
 - Connected-TV instrumentation passes 59 runtime assertions, including all three forecast decoders, isolated theme UID, separate catalog/weather processes, catalog death/recovery, menus and unclipped focused cards.
 - The companion embeds the exact new launcher APK with a matching SHA256. The phone was disconnected during this update, so a fresh companion hardware installation was not repeated.
 - The new glass controls and lake background were visually checked on the connected TV. Older validation above describes earlier tests; it is not a claim that every old test was repeated for this version.
+
+The final device run also verified restoration of the previously enabled Home accessibility service after instrumentation. Three consecutive Android Settings → remote Home cycles returned to Neo. The TV firmware still resolves its OEM launcher as the default, so Neo uses its explicitly enabled Home compatibility service; no system launcher was disabled or removed. No Neo crash was found in the crash buffer during this check.
