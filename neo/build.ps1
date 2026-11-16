@@ -19,7 +19,7 @@ if ($LASTEXITCODE -ne 0) { throw "aapt2 compile failed" }
 
 & "$BT\aapt2.exe" link -o build\unsigned.apk -I "$JAR" --manifest AndroidManifest.xml `
     --java build\gen --min-sdk-version 24 --target-sdk-version 34 `
-    --version-code 200 --version-name "1" build\res.zip
+    --version-code 201 --version-name "1" build\res.zip
 if ($LASTEXITCODE -ne 0) { throw "aapt2 link failed" }
 
 $javaFiles = Get-ChildItem -Recurse -Path src, build\gen -Filter "*.java" | Select-Object -ExpandProperty FullName
@@ -45,7 +45,7 @@ try {
     Get-ChildItem -Recurse -File -Path $assetsRoot | ForEach-Object {
         $rel = $_.FullName.Substring($assetsRoot.Length + 1).Replace('\', '/')
         $entryName = "assets/$rel"
-        if ($rel -in @("neo/video/black-hole.mp4", "neo/video/cinematic-black-hole-v2.mp4")) { return }
+        if ($rel.StartsWith("neo/video/") -and $rel -ne "neo/video/imaginary-space-v1.mp4") { return }
         $existing = $archive.GetEntry($entryName)
         if ($existing) { $existing.Delete() }
         $ext = $_.Extension.ToLowerInvariant()

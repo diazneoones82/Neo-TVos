@@ -1,2 +1,1 @@
-Cinematic scene: NASA Goddard / Jeremy Schnittman, https://svs.gsfc.nasa.gov/13326/
-Original generated spacecraft, stars and debris; no film footage. Full provenance and prompts: docs/VISUAL-CREDITS.md in the repository.
+Original AI-generated black-hole and galaxy artwork; custom orbital-flow and galaxy-drift renderer. Existing generated spacecraft and debris are retained unchanged. No external visualization or film footage. Prompts and provenance: docs/VISUAL-CREDITS.md.

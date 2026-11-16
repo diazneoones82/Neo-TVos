@@ -3,8 +3,9 @@ Copyright 2026 Neo TVLauncher contributors
 Licensed under Apache License, Version 2.0 (see LICENSE).
 
 The current runtime uses Android framework APIs and platform fonts.
-Cinematic assets include NASA Goddard / Jeremy Schnittman visualization
-and generated spacecraft, starfield and debris. See docs/VISUAL-CREDITS.md.
+Cinematic assets are AI-generated artwork with custom orbital-flow, galaxy-drift
+and glow animation. Existing generated spacecraft and debris are retained unchanged.
+See docs/VISUAL-CREDITS.md for prompts and provenance.
 Weather data is supplied by Open-Meteo, MET Norway and wttr.in;
 automatic location uses ipwho.is. Provider data terms remain applicable.
 Earlier releases and their source checkpoints retain their original notices.

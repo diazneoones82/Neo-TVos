@@ -25,7 +25,8 @@ public final class NeoRuntimeInstrumentation extends Instrumentation {
             forecastContracts();
             processContracts();
             homeContracts();
-            report.putString("stream","PASS: "+checks+" runtime assertions; forecast codecs, input adapter, control symbols, isolated workers and Home navigation\n");
+            spaceContracts();
+            report.putString("stream","PASS: "+checks+" runtime assertions; forecast codecs, input adapter, control symbols, isolated workers, Home navigation and space video playback\n");
             finish(-1,report);
         }catch(Throwable failure){
             report.putString("stream","FAIL: "+android.util.Log.getStackTraceString(failure));finish(0,report);
@@ -101,7 +102,8 @@ public final class NeoRuntimeInstrumentation extends Instrumentation {
         menuContract(home,"themeMenu","Aurora Glass");
         menuContract(home,"clockMenu","Show Dual Live clock");
         menuContract(home,"screensaverTimerMenu","2 minutes");
-        menuContract(home,"screensaverWallpaperMenu","Deep space / interstellar");
+        menuContract(home,"screensaverMenu","Spaceship engine exhaust:");
+        menuContract(home,"screensaverWallpaperMenu","Deep space / original black hole");
         menuContract(home,"categoriesMenu","Favorites");
     }
     private void menuContract(NeoHomeActivity home,String method,String expected){
@@ -115,6 +117,55 @@ public final class NeoRuntimeInstrumentation extends Instrumentation {
                 require(found,"Menu contract: "+method+" / "+expected);dialog.dismiss();
             }catch(ReflectiveOperationException error){throw new AssertionError(error);}
         });
+    }
+    private void spaceContracts() throws Exception {
+        android.content.SharedPreferences preferences=getTargetContext().getSharedPreferences("neo",0);
+        String oldMode=preferences.getString("saver_wallpaper",null);
+        boolean oldEngines=preferences.getBoolean("saver_ship_engines",false);
+        runOnMainSync(()->{
+            preferences.edit().putBoolean("saver_ship_engines",false).commit();
+            NeoSpaceVideo disabled=new NeoSpaceVideo(getTargetContext());
+            require(disabled.getChildCount()==1,"Engine option Off creates no glow layer");disabled.stop();
+            preferences.edit().putBoolean("saver_ship_engines",true).commit();
+            NeoSpaceVideo enabled=new NeoSpaceVideo(getTargetContext());
+            require(enabled.getChildCount()==2,"Engine option On creates glow layer");enabled.stop();
+            require(NeoEngineGlow.shipX(16)==960 && Math.abs(NeoEngineGlow.shipY(16)-546)<.1,"Exhaust follows rendered craft coordinates");
+            require(Math.abs(NeoEngineGlow.breathing(0)-NeoEngineGlow.breathing(32))<.0001,"Exhaust breath matches loop boundary");
+            require(NeoEngineGlow.breathing(2)>NeoEngineGlow.breathing(0),"Blue engine breath varies gently");
+        });
+        preferences.edit().putString("saver_wallpaper","space").putBoolean("saver_ship_engines",true).commit();
+        android.app.Activity saver=null;
+        try{
+            saver=startActivitySync(new Intent(getTargetContext(),NeoScreensaverActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+            Thread.sleep(3000);waitForIdleSync();
+            android.app.Activity current=saver;final android.media.MediaPlayer[] media={null};
+            runOnMainSync(()->{
+                try{
+                    java.lang.reflect.Field field=NeoScreensaverActivity.class.getDeclaredField("view");field.setAccessible(true);
+                    Object view=field.get(current);require(view instanceof NeoSpaceVideo,"Space mode selects video renderer");
+                    java.lang.reflect.Field player=NeoSpaceVideo.class.getDeclaredField("player");player.setAccessible(true);
+                    media[0]=(android.media.MediaPlayer)player.get(view);
+                    require(media[0]!=null && media[0].isPlaying(),"Space video is playing on TV");
+                    require(media[0].isLooping(),"Space video loops");
+                    require(media[0].getVideoWidth()==1920 && media[0].getVideoHeight()==1080,"Space video is 1080p");
+                    require(((NeoSpaceVideo)view).getChildCount()==2,"Live space player includes optional blue engines");
+                }catch(ReflectiveOperationException error){throw new AssertionError(error);}
+            });
+            int before=media[0].getCurrentPosition();Thread.sleep(800);
+            require(media[0].getCurrentPosition()>before,"Space playback clock advances");
+            media[0].seekTo(12000);Thread.sleep(1200);
+            require(media[0].isPlaying(),"Blue-exhaust playback survives seek and remains synchronized");
+            android.graphics.Bitmap capture=getUiAutomation().takeScreenshot();
+            if(capture!=null){
+                java.io.File folder=getTargetContext().getExternalFilesDir("runtime-tests");
+                if(folder!=null)try(java.io.FileOutputStream image=new java.io.FileOutputStream(new java.io.File(folder,"space-engines.png"))){capture.compress(android.graphics.Bitmap.CompressFormat.PNG,100,image);}
+                capture.recycle();
+            }
+        }finally{
+            if(saver!=null){android.app.Activity closing=saver;runOnMainSync(closing::finish);}
+            if(oldMode==null)preferences.edit().remove("saver_wallpaper").commit();else preferences.edit().putString("saver_wallpaper",oldMode).commit();
+            preferences.edit().putBoolean("saver_ship_engines",oldEngines).commit();
+        }
     }
     private static void collect(View view,List<View> output){output.add(view);if(view instanceof ViewGroup){ViewGroup group=(ViewGroup)view;for(int i=0;i<group.getChildCount();i++)collect(group.getChildAt(i),output);}}
 }

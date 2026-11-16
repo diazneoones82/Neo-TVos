@@ -53,6 +53,7 @@ If your TV uses pairing-code wireless debugging, Windows option **2** handles pa
 - Live/dual world clocks, countdowns and a themed four-digit PIN keypad.
 - Optional per-app PIN access windows in 15-minute steps; background expiry uses Neo's TV accessibility service.
 - Screensaver delay choices from **2 to 30 minutes**: glowing custom text, animated lake, cinematic space loop, or a custom image.
+- Optional breathing-blue spaceship engine exhaust in Screensaver settings.
 - The phone companion uses the same glass theme and lists general apps with their names and package names.
 
 ![Cinematic space screensaver](docs/images/space-preview.jpg)
@@ -70,6 +71,6 @@ If your TV uses pairing-code wireless debugging, Windows option **2** handles pa
 
 [Build instructions](docs/BUILDING.md) · [Validation](docs/VALIDATION.md) · [Visual credits and generation prompts](docs/VISUAL-CREDITS.md)
 
-The current runtime uses Neo-authored home, input, symbol and weather modules with separate Binder workers for catalog, weather and theme validation. Android platform fonts supply the typography. Source is licensed under **Apache 2.0**; see [NOTICE](NOTICE). The cinematic scene uses credited NASA visualization and generated assets; no film footage is packaged. [Architecture and replacement validation](docs/ARCHITECTURE.md).
+The current runtime uses Neo-authored home, input, symbol and weather modules with separate Binder workers for catalog, weather and theme validation. Android platform fonts supply the typography. Source is licensed under **Apache 2.0**; see [NOTICE](NOTICE). The cinematic scene uses an original AI-generated black hole and galaxies, with custom orbital-flow animation and the existing generated spacecraft and debris. No external visualization or film footage is packaged. [Architecture and replacement validation](docs/ARCHITECTURE.md).
 
 Signing keys, ADB private keys, device reports and personal screenshots are not published. APKs are provided as GitHub Release assets rather than committed to the source tree.

@@ -28,3 +28,9 @@ The final device run also verified restoration of the previously enabled Home ac
 ## Neo TVLauncher Version 1
 
 The rebranded launcher (Android code 200, version name 1) was upgraded in place on the connected TV. Both APK builds, host suites, the 451-fingerprint exclusion check and all 59 TV runtime assertions passed again. Home returned to the launcher from Android Settings; the accessibility binding was restored and had no crashed service. The companion (code 140, version name 1) embeds the exact new launcher and matching SHA256; its label was verified in the built APK. The phone was not connected for an additional installation.
+
+## Original space scene update
+
+The new scene uses generated black-hole/galaxy PNGs and a custom periodic orbital-light renderer. The prior external visualization and its render pipeline are absent from the current source/assets. Space video validation checks the real encoded frame rate, duration, dark center, visible disk motion, boundary-frame continuity and retained spacecraft/debris byte identity. The optional breathing-blue engines are a separate, playback-clock-synchronized layer with an Off/On setting; tests cover disabled/enabled layers, banking coordinates, periodic breathing and actual video playback after seeking. Historical checkpoint assets remain historical only.
+
+The final encoded scene passed 1080p60/32-second checks, a 40.28 dB loop-boundary PSNR check (mean pixel difference 1.40/255), disk-motion and dark-center checks, and unchanged spacecraft/debris hashes. Both APKs built; the connected TV passed 72 runtime assertions including live looping playback, seeking and optional exhaust. Only `imaginary-space-v1.mp4` is packaged as video, and the companion embeds the exact new APK.
