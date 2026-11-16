@@ -1,0 +1,7 @@
+from pathlib import Path
+import imageio_ffmpeg,subprocess
+r=Path(__file__).resolve().parents[1];(r/'audit').mkdir(exist_ok=True);f=imageio_ffmpeg.get_ffmpeg_exe();base=r/'media-sources/black-hole-seamless-gold.mp4';flow=r/'media-sources/black-hole-seamless-gold-60.mp4'
+with (r/'audit/render-optical-flow.log').open('w') as log:subprocess.run([f,'-y','-stream_loop','2','-i',str(base),'-vf','minterpolate=fps=60:mi_mode=mci:mc_mode=aobmc:me_mode=bidir:vsbmc=1','-ss','4','-t','4','-an','-c:v','libx264','-preset','fast','-crf','16',str(flow)],stdout=log,stderr=log,check=True)
+output=r/'neo/assets/neo/video/cinematic-black-hole-v2.mp4';filters="[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,setsar=1[bg];[1:v]format=rgba,scale=500:-1,rotate='0.055*sin(2*PI*t/32)':ow=560:oh=420:c=none[craft];[bg][craft]overlay=x='-w-80+(W+2*w+160)*t/32':y='H*(0.78-0.16*t/32)-h/2':eval=frame:format=auto,format=yuv420p[out]"
+with (r/'audit/render-cinematic-video.log').open('w') as log:subprocess.run([f,'-y','-stream_loop','-1','-i',str(flow),'-loop','1','-framerate','60','-i',str(r/'media-sources/cinematic-craft-v1.png'),'-filter_complex',filters,'-map','[out]','-t','32','-an','-c:v','libx264','-profile:v','high','-level:v','4.2','-preset','fast','-crf','20','-pix_fmt','yuv420p','-movflags','+faststart',str(output)],stdout=log,stderr=log,check=True)
+print('Finished interpolated 60 fps cinematic loop',output.stat().st_size)

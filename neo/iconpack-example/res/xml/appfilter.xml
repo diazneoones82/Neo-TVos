@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item component="ComponentInfo{com.apps.function.audiolink/com.apps.function.audiolink.activity.AudioLinkActivity}" drawable="outline_audio" />
+    <item component="ComponentInfo{com.creative.fastscreen.tv/com.creative.fastscreen.tv.activity.ad.Advertisement}" drawable="outline_play" />
+    <item component="ComponentInfo{com.android.vending/com.google.android.finsky.tvmainactivity.TvMainActivity}" drawable="outline_play" />
+</resources>

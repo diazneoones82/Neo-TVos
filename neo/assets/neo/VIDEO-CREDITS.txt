@@ -1,0 +1,2 @@
+Cinematic scene: NASA Goddard / Jeremy Schnittman, https://svs.gsfc.nasa.gov/13326/
+Original generated spacecraft, stars and debris; no film footage. Full provenance and prompts: docs/VISUAL-CREDITS.md in the repository.

@@ -1,0 +1,1 @@
+package android.content;public abstract class Context{public abstract SharedPreferences getSharedPreferences(String n,int m);public String getPackageName(){return "com.tvos.neo";}public Object getContentResolver(){return null;}}

@@ -1,0 +1,8 @@
+package com.neotvos.support;
+import java.util.*;
+/** Deliberately excludes core OS, settings, input services and all Home providers. */
+final class CleanupPolicy{
+ static final Map<String,String> OPTIONAL=new LinkedHashMap<>();static{OPTIONAL.put("in.startv.hotstar","Disney+ Hotstar");OPTIONAL.put("org.videolan.vlc","VLC");OPTIONAL.put("com.netflix.ninja","Netflix TV");OPTIONAL.put("com.netflix.mediaclient","Netflix");OPTIONAL.put("com.amazon.mp3","Amazon Music");OPTIONAL.put("org.jellyfin.androidtv","Jellyfin TV");OPTIONAL.put("org.jellyfin.mobile","Jellyfin");OPTIONAL.put("com.amazon.amazonvideo.livingroom","Prime Video");OPTIONAL.put("com.google.android.youtube.tv","YouTube TV");OPTIONAL.put("com.google.android.apps.youtube.music","YouTube Music");OPTIONAL.put("com.google.android.videos","Google TV / Play Movies");OPTIONAL.put("com.google.android.play.games","Play Games");}
+ static boolean valid(String pkg){return pkg!=null&&pkg.matches("[A-Za-z][A-Za-z0-9_]*(\\.[A-Za-z0-9_]+)+");}
+ static boolean canRemove(String pkg,boolean thirdParty,Set<String> homes){if(!valid(pkg)||homes.contains(pkg)||pkg.equals("com.tvos.neo")||pkg.equals("com.neotvos.support")||pkg.equals("android"))return false;String low=pkg.toLowerCase(Locale.ROOT);if(low.contains("settings")||low.contains("systemui")||low.contains("launcher")||low.contains("inputmethod")||low.contains("keyboard")||low.contains("permissioncontroller")||low.contains("packageinstaller")||low.contains("providers")||low.contains("bluetooth")||low.contains("accessibility"))return false;return OPTIONAL.containsKey(pkg)||thirdParty;}
+}

@@ -1,0 +1,1 @@
+package android.provider;public class Settings{public static class Global{public static int boot=1;public static int getInt(Object c,String k,int d){return boot;}}}
