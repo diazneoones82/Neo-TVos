@@ -14,7 +14,7 @@ USB discovery's no-device case was tested. Full phone-to-TV OTG transfer was not
 
 Only generic results are published. No device reports, serial numbers, LAN addresses, private screenshots or debugging keys are included.
 
-## Version 1.9 replacement validation
+## Runtime replacement validation
 
 - The checkpoint retains the previous tree. All 451 identified inherited-file fingerprints are absent from the current runtime.
 - Both portable source builds pass; final DEX inspection confirms the replacement input, symbol and forecast classes and absence of retired helpers/libraries/assets.
@@ -24,3 +24,7 @@ Only generic results are published. No device reports, serial numbers, LAN addre
 - The new glass controls and lake background were visually checked on the connected TV. Older validation above describes earlier tests; it is not a claim that every old test was repeated for this version.
 
 The final device run also verified restoration of the previously enabled Home accessibility service after instrumentation. Three consecutive Android Settings → remote Home cycles returned to Neo. The TV firmware still resolves its OEM launcher as the default, so Neo uses its explicitly enabled Home compatibility service; no system launcher was disabled or removed. No Neo crash was found in the crash buffer during this check.
+
+## Neo TVLauncher Version 1
+
+The rebranded launcher (Android code 200, version name 1) was upgraded in place on the connected TV. Both APK builds, host suites, the 451-fingerprint exclusion check and all 59 TV runtime assertions passed again. Home returned to the launcher from Android Settings; the accessibility binding was restored and had no crashed service. The companion (code 140, version name 1) embeds the exact new launcher and matching SHA256; its label was verified in the built APK. The phone was not connected for an additional installation.

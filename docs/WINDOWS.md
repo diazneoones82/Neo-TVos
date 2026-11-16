@@ -4,9 +4,9 @@
 
 1. Download the Windows CLI ZIP from the project's GitHub Releases.
 2. Extract the whole ZIP to a writable folder.
-3. Get Android Platform Tools from https://developer.android.com/tools/releases/platform-tools . Put its `platform-tools` folder beside `Start-Neo-TVos.cmd`, add ADB to PATH, or select `adb.exe` with option 17.
+3. Get Android Platform Tools from https://developer.android.com/tools/releases/platform-tools . Put its `platform-tools` folder beside `Start-Neo-TVLauncher.cmd`, add ADB to PATH, or select `adb.exe` with option 17.
 4. Enable the TV's Developer options and USB/network debugging. Keep the TV on.
-5. Double-click `Start-Neo-TVos.cmd` and choose option 1. Enter the TV IP:port or exact USB serial. Accept the debugging prompt on that TV.
+5. Double-click `Start-Neo-TVLauncher.cmd` and choose option 1. Enter the TV IP:port or exact USB serial. Accept the debugging prompt on that TV.
 6. Check its identity and choose option 4 to scan before changing anything.
 7. Choose 5 to install/update without cleanup, or 6 to review optional media-app cleanup during installation.
 
@@ -40,4 +40,4 @@ If the Home button still opens the OEM launcher, use Neo's Home-button compatibi
 
 ## Source checkout
 
-The scripts live under `neo/` in the source repository. Build the launcher first or use option 17 to select a downloaded release APK. The downloadable Windows bundle already includes the APK under `build/TVOS-Neo.apk`.
+The scripts live under `neo/` in the source repository. Build the launcher first or use option 17 to select a downloaded release APK. The downloadable Windows bundle already includes the APK under `build/Neo-TVLauncher.apk`.

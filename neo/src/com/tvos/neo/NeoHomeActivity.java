@@ -173,7 +173,7 @@ public final class NeoHomeActivity extends Activity {
         root.addView(scrim, new FrameLayout.LayoutParams(-1, -1));
 
         LinearLayout branding = column();
-        TextView brand = text("Neo TVos", 23, theme.text); brand.setLetterSpacing(0.06f);
+        TextView brand = text("Neo TVLauncher", 23, theme.text); brand.setLetterSpacing(0.06f);
         branding.addView(brand);
         root.addView(branding, position(240, 60, Gravity.TOP | Gravity.LEFT, 36, 28));
 
@@ -310,7 +310,7 @@ public final class NeoHomeActivity extends Activity {
         List<App> out = new ArrayList<>();
         if(!prefs.getBoolean("controls_collapsed",false)){
             if(prefs.getBoolean("control_visible:@inputs",true))out.add(special("@inputs", "TV Inputs"));
-            if(prefs.getBoolean("control_visible:@settings",true))out.add(special("@settings", "Neo TVos Settings"));
+            if(prefs.getBoolean("control_visible:@settings",true))out.add(special("@settings", "Neo TVLauncher Settings"));
             if(prefs.getBoolean("control_visible:@themes",true))out.add(special("@themes", "Theme Studio"));
             if(prefs.getBoolean("control_visible:@timer",true))out.add(special("@timer", "Clock & Timer"));
         }
@@ -425,7 +425,7 @@ public final class NeoHomeActivity extends Activity {
     private String orderPreference(){return "all".equals(activeCategory)?"order":"category_order:"+activeCategory;}
 
     private void settingsMenu() {
-        menu("Neo TVos Settings", Arrays.asList("Screensaver", "App lock & parental controls", "App sections & categories", "Home controls", "Theme Studio", "Icon packs", "Clock & countdown", "Weather", "System updates", "Restore hidden apps", "Android TV settings", "Make Neo the Home launcher"),
+        menu("Neo TVLauncher Settings", Arrays.asList("Screensaver", "App lock & parental controls", "App sections & categories", "Home controls", "Theme Studio", "Icon packs", "Clock & countdown", "Weather", "System updates", "Restore hidden apps", "Android TV settings", "Make Neo the Home launcher"),
                 Arrays.asList(this::screensaverMenu,this::parentalMenu,this::categoriesMenu,this::controlsMenu,this::themeMenu, this::iconPackMenu, this::clockMenu, this::showWeather,this::updatesMenu,
                 () -> { prefs.edit().remove("hidden").apply(); renderApps(); toast("Hidden apps restored"); },
                 () -> safeStart(new Intent(Settings.ACTION_SETTINGS)),this::homeSetup));
@@ -445,7 +445,7 @@ public final class NeoHomeActivity extends Activity {
     private void controlsMenu(){
         List<String> labels=new ArrayList<>();List<Runnable> actions=new ArrayList<>();
         labels.add(prefs.getBoolean("controls_collapsed",false)?"Expand controls":"Minimize controls");actions.add(()->{prefs.edit().putBoolean("controls_collapsed",!prefs.getBoolean("controls_collapsed",false)).apply();renderApps();});
-        String[] keys={"@inputs","@settings","@themes","@timer"},names={"TV Inputs","Neo TVos Settings","Theme Studio","Clock & Timer"};
+        String[] keys={"@inputs","@settings","@themes","@timer"},names={"TV Inputs","Neo TVLauncher Settings","Theme Studio","Clock & Timer"};
         for(int i=0;i<keys.length;i++){final String key=keys[i];labels.add((prefs.getBoolean("control_visible:"+key,true)?"[Shown] ":"[Hidden] ")+names[i]);actions.add(()->{prefs.edit().putBoolean("control_visible:"+key,!prefs.getBoolean("control_visible:"+key,true)).apply();renderApps();controlsMenu();});}
         labels.add("Show all controls");actions.add(()->{android.content.SharedPreferences.Editor e=prefs.edit().putBoolean("controls_collapsed",false);for(String key:keys)e.putBoolean("control_visible:"+key,true);e.apply();renderApps();});
         menu("Home controls",labels,actions);
@@ -583,10 +583,10 @@ public final class NeoHomeActivity extends Activity {
     @Override public void onUserInteraction(){super.onUserInteraction();lastInteraction=android.os.SystemClock.elapsedRealtime();}
     private void applySaverWakePolicy(){if(prefs.getBoolean("saver_enabled",false))getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);else getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);}
     private void screensaverMenu(){
-        menu("Neo screensaver",Arrays.asList("Screensaver: "+(prefs.getBoolean("saver_enabled",false)?"Enabled":"Disabled"),"Start after: "+prefs.getInt("saver_minutes",5)+" minutes","Wallpaper: "+prefs.getString("saver_wallpaper","black"),"Preview screensaver","Use Neo instead of Android / Google TV screensaver"),Arrays.asList(()->{prefs.edit().putBoolean("saver_enabled",!prefs.getBoolean("saver_enabled",false)).apply();lastInteraction=android.os.SystemClock.elapsedRealtime();applySaverWakePolicy();screensaverMenu();},this::screensaverTimerMenu,this::screensaverWallpaperMenu,()->startActivity(new Intent(this,NeoScreensaverActivity.class)),()->menu("Replace TV screensaver",Arrays.asList("Choose Neo TVos Screensaver in Android settings","How override works"),Arrays.asList(()->safeStart(new Intent("android.settings.DREAM_SETTINGS")),()->toast("Select Neo TVos Screensaver in the TV settings. Neo's idle timer applies on Home; the TV controls the system idle delay. Some TVs require the companion CLI override.")))));
+        menu("Neo screensaver",Arrays.asList("Screensaver: "+(prefs.getBoolean("saver_enabled",false)?"Enabled":"Disabled"),"Start after: "+prefs.getInt("saver_minutes",5)+" minutes","Wallpaper: "+prefs.getString("saver_wallpaper","black"),"Preview screensaver","Use Neo instead of Android / Google TV screensaver"),Arrays.asList(()->{prefs.edit().putBoolean("saver_enabled",!prefs.getBoolean("saver_enabled",false)).apply();lastInteraction=android.os.SystemClock.elapsedRealtime();applySaverWakePolicy();screensaverMenu();},this::screensaverTimerMenu,this::screensaverWallpaperMenu,()->startActivity(new Intent(this,NeoScreensaverActivity.class)),()->menu("Replace TV screensaver",Arrays.asList("Choose Neo TVLauncher Screensaver in Android settings","How override works"),Arrays.asList(()->safeStart(new Intent("android.settings.DREAM_SETTINGS")),()->toast("Select Neo TVLauncher Screensaver in the TV settings. Neo's idle timer applies on Home; the TV controls the system idle delay. Some TVs require the companion CLI override.")))));
     }
     private void screensaverTimerMenu(){List<String> labels=new ArrayList<>();List<Runnable> actions=new ArrayList<>();for(int m:new int[]{2,5,10,15,20,25,30}){final int minutes=m;labels.add(m+" minutes");actions.add(()->{prefs.edit().putInt("saver_minutes",minutes).apply();lastInteraction=android.os.SystemClock.elapsedRealtime();screensaverMenu();});}menu("Screensaver idle timer",labels,actions);}
-    private void screensaverWallpaperMenu(){menu("Screensaver wallpaper",Arrays.asList("Black screen / glowing custom text","Live Home landscape / water ripples & distant lights","Deep space / interstellar","Custom wallpaper"),Arrays.asList(()->edit("Text for black screensaver (max 60 characters)",prefs.getString("saver_text","Neo TVos"),false,value->{if(value.trim().isEmpty()||value.length()>60){toast("Enter 1 to 60 characters");return;}prefs.edit().putString("saver_text",value.trim()).apply();selectSaver("black");}),()->selectSaver("lake"),()->selectSaver("space"),this::customSaverMenu));}
+    private void screensaverWallpaperMenu(){menu("Screensaver wallpaper",Arrays.asList("Black screen / glowing custom text","Live Home landscape / water ripples & distant lights","Deep space / interstellar","Custom wallpaper"),Arrays.asList(()->edit("Text for black screensaver (max 60 characters)",prefs.getString("saver_text","Neo TVLauncher"),false,value->{if(value.trim().isEmpty()||value.length()>60){toast("Enter 1 to 60 characters");return;}prefs.edit().putString("saver_text",value.trim()).apply();selectSaver("black");}),()->selectSaver("lake"),()->selectSaver("space"),this::customSaverMenu));}
     private void customSaverMenu(){menu("Custom screensaver image",Arrays.asList("Choose image from TV storage","Use image uploaded by companion CLI"),Arrays.asList(()->{Intent pick=new Intent(Intent.ACTION_OPEN_DOCUMENT).setType("image/*").addCategory(Intent.CATEGORY_OPENABLE);try{startActivityForResult(pick,46);}catch(Exception e){toast("No image picker installed. Use companion CLI option 20.");}},()->importSaver(Uri.fromFile(new java.io.File(getExternalFilesDir("screensaver"),"custom-image")))));}
     private void selectSaver(String mode){prefs.edit().putString("saver_wallpaper",mode).apply();screensaverMenu();}
     private void importSaver(Uri uri){toast("Importing screensaver image");worker.execute(()->{try{

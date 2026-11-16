@@ -1,4 +1,4 @@
-# Neo TVos
+# Neo TVLauncher
 
 Clean up general apps on **Google TV, Android TV and compatible TV boxes**, then install a custom TV home launcher — from an **Android phone** or a **Windows menu-driven CLI**.
 
@@ -6,13 +6,13 @@ Clean up general apps on **Google TV, Android TV and compatible TV boxes**, then
 
 | What you need | Download |
 | --- | --- |
-| Android phone installer/support app | [Neo TVos Companion 1.3.0](https://github.com/diazneoones82/Neo-TVos/releases/download/v1.9.0/Neo-TVos-Companion-1.3.0.apk) |
-| Windows menu + launcher APK | [Windows CLI bundle](https://github.com/diazneoones82/Neo-TVos/releases/download/v1.9.0/Neo-TVos-1.9.0-Windows-CLI.zip) |
-| Launcher APK only — install this on the TV | [Neo TVos 1.9.0](https://github.com/diazneoones82/Neo-TVos/releases/download/v1.9.0/Neo-TVos-1.9.0.apk) |
+| Android phone installer/support app | [Neo TVLauncher Companion 1](https://github.com/diazneoones82/Neo-TVos/releases/download/v1/Neo-TVLauncher-Companion-1.apk) |
+| Windows menu + launcher APK | [Windows CLI bundle](https://github.com/diazneoones82/Neo-TVos/releases/download/v1/Neo-TVLauncher-1-Windows-CLI.zip) |
+| Launcher APK only — install this on the TV | [Neo TVLauncher 1](https://github.com/diazneoones82/Neo-TVos/releases/download/v1/Neo-TVLauncher-1.apk) |
 
 [All releases and SHA256 checksums](https://github.com/diazneoones82/Neo-TVos/releases) · [Android phone guide](docs/ANDROID.md) · [Windows guide](docs/WINDOWS.md)
 
-**Companion goes on your phone. Neo TVos goes on your TV.**
+**Companion goes on your phone. Neo TVLauncher goes on your TV.**
 
 ## Prepare your TV once
 
@@ -26,12 +26,12 @@ An Ethernet cable by itself does not enable debugging. Use the ADB port shown by
 
 ## Use an Android phone
 
-1. Download and install **Neo TVos Companion** on the phone. If Android asks, allow installation from the browser/file manager you used.
+1. Download and install **Neo TVLauncher Companion** on the phone. If Android asks, allow installation from the browser/file manager you used.
 2. Choose **Connect using Wi-Fi / Ethernet**, enter the TV IP and classic ADB port, then approve debugging on the TV.
 3. Check the detected **brand, model and serial**.
 4. Choose **Review general apps**. Cards show the real **app name and package name**; required Android components, Settings and Home providers are excluded.
 5. Tap an app and confirm its removal individually, or Cancel. Nothing is automatically selected for deletion.
-6. Choose **Install Neo TVos** and wait for success.
+6. Choose **Install Neo TVLauncher** and wait for success.
 7. Choose **Set Neo as Home**. If the TV keeps its OEM default launcher, use the separately confirmed **Home-button compatibility** option, then press Home on the TV remote.
 
 The original launcher stays installed. The companion also has a USB/OTG connection option for TVs with a supported USB device/debug port. [Detailed phone instructions and connection limits →](docs/ANDROID.md)
@@ -40,7 +40,7 @@ The original launcher stays installed. The companion also has a USB/OTG connecti
 
 1. Download and **extract the entire Windows CLI ZIP**.
 2. Download [Android Platform Tools](https://developer.android.com/tools/releases/platform-tools). Put `platform-tools` beside the menu, or choose `adb.exe` using option **17**.
-3. Double-click **Start-Neo-TVos.cmd**.
+3. Double-click **Start-Neo-TVLauncher.cmd**.
 4. Select **1** to connect to the intended TV, then **4** to scan it.
 5. Select **5** to install/update without cleanup, or **6** to install and review optional app cleanup.
 6. Each menu action explains what it does and asks **Y/N**. **Enter means No.** Cleanup confirms the exact selected package list again before removal.

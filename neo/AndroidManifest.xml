@@ -9,7 +9,7 @@
         <intent><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LEANBACK_LAUNCHER" /></intent>
         <intent><action android:name="android.intent.action.MAIN" /><category android:name="android.intent.category.LAUNCHER" /></intent>
     </queries>
-    <application android:label="Neo TVos" android:icon="@drawable/ic_launcher" android:banner="@drawable/banner"
+    <application android:label="Neo TVLauncher" android:icon="@drawable/ic_launcher" android:banner="@drawable/banner"
         android:theme="@style/HomeTheme" android:allowBackup="false" android:hardwareAccelerated="true">
         <activity android:name=".NeoHomeActivity" android:exported="true" android:launchMode="singleTask"
             android:excludeFromRecents="true" android:screenOrientation="landscape" android:windowSoftInputMode="adjustNothing"
@@ -23,13 +23,13 @@
         <service android:name=".NeoCatalogService" android:exported="false" android:process=":catalog" />
         <service android:name=".NeoWeatherService" android:exported="false" android:process=":weather" />
         <service android:name=".NeoThemeService" android:exported="false" android:process=":theme" android:isolatedProcess="true" />
-        <service android:name=".NeoHomeService" android:exported="true" android:label="Neo TVos - Home and app locks"
+        <service android:name=".NeoHomeService" android:exported="true" android:label="Neo TVLauncher - Home and app locks"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter><action android:name="android.accessibilityservice.AccessibilityService" /></intent-filter>
             <meta-data android:name="android.accessibilityservice" android:resource="@xml/neo_home_service" />
         </service>
         <activity android:name=".NeoScreensaverActivity" android:exported="false" android:excludeFromRecents="true" android:screenOrientation="landscape" />
-        <service android:name=".NeoDreamService" android:exported="true" android:label="Neo TVos Screensaver" android:permission="android.permission.BIND_DREAM_SERVICE">
+        <service android:name=".NeoDreamService" android:exported="true" android:label="Neo TVLauncher Screensaver" android:permission="android.permission.BIND_DREAM_SERVICE">
             <intent-filter><action android:name="android.service.dreams.DreamService" /><category android:name="android.intent.category.DEFAULT" /></intent-filter>
         </service>
     </application>

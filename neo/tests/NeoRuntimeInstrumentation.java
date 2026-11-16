@@ -85,7 +85,7 @@ public final class NeoRuntimeInstrumentation extends Instrumentation {
             }
             List<View> views=new ArrayList<>();collect(home.getWindow().getDecorView(),views);
             boolean brand=false;
-            for(View view:views)if(view instanceof TextView && "Neo TVos".contentEquals(((TextView)view).getText()))brand=true;
+            for(View view:views)if(view instanceof TextView && "Neo TVLauncher".contentEquals(((TextView)view).getText()))brand=true;
             require(brand,"Home brand present");
         });
         for(int key:new int[]{KeyEvent.KEYCODE_DPAD_UP,KeyEvent.KEYCODE_DPAD_RIGHT,KeyEvent.KEYCODE_DPAD_DOWN,KeyEvent.KEYCODE_DPAD_RIGHT,KeyEvent.KEYCODE_DPAD_LEFT}){

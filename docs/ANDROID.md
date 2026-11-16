@@ -1,6 +1,6 @@
-# Neo TVos Companion — phone installation guide
+# Neo TVLauncher Companion — phone installation guide
 
-Install **Neo-TVos-Companion.apk on your Android phone**, not on the TV. It contains the Neo TVos launcher APK, so the install step works offline after the phone and TV are connected. Android 8 or newer is required on the phone; Android TV / Google TV 7 or newer is required on the TV.
+Install **Neo-TVLauncher-Companion.apk on your Android phone**, not on the TV. It contains the Neo TVLauncher launcher APK, so the install step works offline after the phone and TV are connected. Android 8 or newer is required on the phone; Android TV / Google TV 7 or newer is required on the TV.
 
 ## First prepare the TV
 
@@ -41,7 +41,7 @@ Core/system apps, Settings, input/keyboard services, Neo itself and all detected
 
 ## Install Neo and set up Home
 
-1. Choose **Install Neo TVos**, check the selected TV, then confirm. Keep the phone connected until the success message.
+1. Choose **Install Neo TVLauncher**, check the selected TV, then confirm. Keep the phone connected until the success message.
 2. The app verifies its bundled APK's SHA256 before streaming it directly to Android's package installer. Other TV apps are not removed during installation.
 3. Choose **Set Neo as Home > Set Android default Home to Neo**.
 4. If the TV keeps its OEM launcher, choose **Enable Home-button compatibility**, read the accessibility-service explanation, and confirm.

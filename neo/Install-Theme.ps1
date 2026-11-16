@@ -1,4 +1,4 @@
-﻿param(
+param(
     [Parameter(Mandatory=$true)][string]$ThemePath,
     [string]$WallpaperPath,
     [Parameter(Mandatory=$true)][string]$Serial,

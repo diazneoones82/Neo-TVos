@@ -1,10 +1,10 @@
-﻿[CmdletBinding()]
+[CmdletBinding()]
 param([string]$Device, [string]$AdbPath, [switch]$NoMenu)
 $ErrorActionPreference = 'Stop'
 $script:NeoDevice = $Device
 $script:NeoIdentity = ''
 $script:NeoAdb = $AdbPath
-$script:NeoApk = Join-Path $PSScriptRoot 'build\TVOS-Neo.apk'
+$script:NeoApk = Join-Path $PSScriptRoot 'build\Neo-TVLauncher.apk'
 $script:NeoReports = Join-Path $PSScriptRoot 'device-reports'
 $script:NeoExit = $false
 
@@ -76,7 +76,7 @@ function Invoke-NeoInstaller {
     $arguments = @{ Device=$script:NeoDevice; AdbPath=(Resolve-NeoAdb); ApkPath=$script:NeoApk; EnableHomeFix=$true; ReportDirectory=$script:NeoReports }
     if (!$Cleanup) { $arguments.SkipCleanup=$true }
     if ($IconPack) { $arguments.IconPackPath=$IconPack }
-    & (Join-Path $PSScriptRoot 'Setup-TVOS-Neo.ps1') @arguments
+    & (Join-Path $PSScriptRoot 'Setup-Neo-TVLauncher.ps1') @arguments
 }
 function Set-NeoUpdateFlag {
     param([ValidateSet('0','1','null')][string]$Value)
@@ -122,8 +122,8 @@ function Invoke-NeoChoice {
             $script:NeoDevice=$target;$script:NeoIdentity='';Assert-NeoTV
         }
         '3' { if (Confirm-NeoAction 'List connected devices' 'List ADB endpoints and authorization states. This may start the local ADB daemon; no TV settings change.') { Invoke-NeoAdb -Arguments @('devices','-l') | Out-Host } }
-        '4' { Require-NeoTarget;if (Confirm-NeoAction 'Scan TV apps' 'Read device identity and installed packages; save inventory and cleanup candidates locally. No app removal or TV configuration.') { & (Join-Path $PSScriptRoot 'Setup-TVOS-Neo.ps1') -Device $script:NeoDevice -AdbPath (Resolve-NeoAdb) -ScanOnly -ReportDirectory $script:NeoReports } }
-        '5' { Require-NeoTarget;if (Confirm-NeoAction 'Install / update Neo TVos' "Install $script:NeoApk, launch Neo, attempt default Home and enable its Home-button compatibility service. No cleanup removals.") { Invoke-NeoInstaller } }
+        '4' { Require-NeoTarget;if (Confirm-NeoAction 'Scan TV apps' 'Read device identity and installed packages; save inventory and cleanup candidates locally. No app removal or TV configuration.') { & (Join-Path $PSScriptRoot 'Setup-Neo-TVLauncher.ps1') -Device $script:NeoDevice -AdbPath (Resolve-NeoAdb) -ScanOnly -ReportDirectory $script:NeoReports } }
+        '5' { Require-NeoTarget;if (Confirm-NeoAction 'Install / update Neo TVLauncher' "Install $script:NeoApk, launch Neo, attempt default Home and enable its Home-button compatibility service. No cleanup removals.") { Invoke-NeoInstaller } }
         '6' { Require-NeoTarget;if (Confirm-NeoAction 'Install Neo and review cleanup' 'Install/launch Neo, then review optional media apps. You choose exact app numbers and confirm their removal with a second Y/N prompt. APKs are copied first; removed app data is not backed up. Core and unverified packages are excluded.') { Invoke-NeoInstaller -Cleanup } }
         '7' { Require-NeoTarget;$defaultPack=Join-Path $PSScriptRoot 'Neo-Outline-Icons.apk';if(!(Test-Path -LiteralPath $defaultPack)){$defaultPack=Join-Path $PSScriptRoot 'iconpack-example\build\Neo-Outline-Icons.apk'};$pack=Read-NeoFile 'Icon-pack APK' $defaultPack;if (Confirm-NeoAction 'Install Neo and icon pack' "Install/update Neo plus $pack and enable Home compatibility. No cleanup. Select the pack later in Neo Settings > Icon packs.") { Invoke-NeoInstaller -IconPack $pack } }
         '8' { Require-NeoTarget;if (Confirm-NeoAction 'Disable Android automatic-update scheduling' 'Save the prior value, then set ota_disable_automatic_update=1 and verify readback. No Neo reinstall. This does not prove manufacturer OTA updates are blocked; webOS/Tizen are unsupported.') { Set-NeoUpdateFlag '1' } }
@@ -161,7 +161,7 @@ function Invoke-NeoChoice {
             $alternatives=@($raw -split '\r?\n'|ForEach-Object{$_.Trim()}|Where-Object{$_ -match '^[A-Za-z0-9_.]+/[A-Za-z0-9_.$]+$' -and $_ -notmatch '^com\.tvos\.neo/'}|Sort-Object -Unique)
             if(!$alternatives.Count){throw 'No fallback Home found; removal blocked.'};for($i=0;$i -lt $alternatives.Count;$i++){Write-Host "$($i+1) $($alternatives[$i])"}
             $pick=Read-Host 'Fallback Home number (Enter cancels)';if(!$pick){return};if($pick -notmatch '^\d+$' -or [int]$pick -lt 1 -or [int]$pick -gt $alternatives.Count){throw 'Invalid fallback choice.'};$fallback=$alternatives[[int]$pick-1]
-            if(Confirm-NeoAction 'Remove Neo TVos' "Disable Neo Home interception, choose $fallback as Home, and uninstall only com.tvos.neo. Neo categories/theme preferences are deleted. Other apps and update-scheduling state are unchanged."){
+            if(Confirm-NeoAction 'Remove Neo TVLauncher' "Disable Neo Home interception, choose $fallback as Home, and uninstall only com.tvos.neo. Neo categories/theme preferences are deleted. Other apps and update-scheduling state are unchanged."){
                 Remove-NeoHomeFix|Out-Null;Invoke-NeoAdb -Arguments @('-s',$script:NeoDevice,'shell','cmd','package','set-home-activity',("'"+$fallback+"'"))|Out-Host;Invoke-NeoAdb -Arguments @('-s',$script:NeoDevice,'uninstall','com.tvos.neo')|Out-Host
             }
         }
@@ -171,7 +171,7 @@ function Invoke-NeoChoice {
             Require-NeoTarget;$minutes=Read-Host 'System idle delay in minutes (2,5,10,15,20,25,30)';if($minutes -notmatch '^(2|5|10|15|20|25|30)$'){throw 'Choose 2 or 5 to 30 minutes in steps of 5.'}
             if(Confirm-NeoAction 'Use Neo as system screensaver' "Back up the current screensaver settings, select NeoDreamService, enable idle screensavers and set the Android screen-off delay to $minutes minutes. OEM firmware may use a separate timer. Restore using option 19."){
                 Assert-NeoTV
-                $installed=Invoke-NeoAdb -Arguments @('-s',$script:NeoDevice,'shell','dumpsys','package','com.tvos.neo');if($installed -notmatch 'NeoDreamService'){throw 'Install Neo TVos 1.6 or newer first.'}
+                $installed=Invoke-NeoAdb -Arguments @('-s',$script:NeoDevice,'shell','dumpsys','package','com.tvos.neo');if($installed -notmatch 'NeoDreamService'){throw 'Install Neo TVLauncher with screensaver support first.'}
                 $folder=Join-Path $script:NeoReports (($script:NeoDevice -replace '[^A-Za-z0-9_.-]','_')+'-screensaver-'+(Get-Date -Format 'yyyyMMdd-HHmmss-fff'));New-Item -ItemType Directory -Force $folder|Out-Null
                 @{device=$script:NeoDevice}|ConvertTo-Json|Set-Content (Join-Path $folder 'device.json')
                 $values=@();foreach($key in @('screensaver_components','screensaver_enabled','screensaver_activate_on_sleep','screensaver_activate_on_dock')){$values+=@{scope='secure';key=$key;value=(Invoke-NeoAdb -Arguments @('-s',$script:NeoDevice,'shell','settings','get','secure',$key))}}
@@ -197,7 +197,7 @@ function Invoke-NeoChoice {
     }
 }
 function Show-NeoMenu {
-    Write-Host "`n========== Neo TVos - TV manager ==========" -ForegroundColor Cyan
+    Write-Host "`n========== Neo TVLauncher - TV manager ==========" -ForegroundColor Cyan
     Write-Host "Selected TV: $(if($script:NeoDevice){$script:NeoDevice+' '+$script:NeoIdentity}else{'none - choose option 1 or 2'})"
     Write-Host @'
  1  Select / connect TV             2  Pair wireless debugging

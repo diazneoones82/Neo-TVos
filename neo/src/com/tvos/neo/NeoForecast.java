@@ -211,7 +211,7 @@ final class NeoForecast {
     private static JSONObject fetch(String endpoint) throws Exception {
         HttpURLConnection connection=(HttpURLConnection)new URL(endpoint).openConnection();
         connection.setConnectTimeout(8000);connection.setReadTimeout(8000);
-        connection.setRequestProperty("User-Agent","NeoTVos/1.9 (+https://github.com/diazneoones82/Neo-TVos)");
+        connection.setRequestProperty("User-Agent","NeoTVLauncher/1 (+https://github.com/diazneoones82/Neo-TVos)");
         try{
             if(connection.getResponseCode()!=200)throw new java.io.IOException("Forecast HTTP error");
             try(InputStream input=connection.getInputStream();ByteArrayOutputStream bytes=new ByteArrayOutputStream()){

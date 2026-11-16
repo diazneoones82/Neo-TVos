@@ -18,8 +18,8 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\companion\build.ps1
 
 Outputs:
 
-- `neo/build/TVOS-Neo.apk`
-- `companion/build/Neo-TVos-Companion.apk`
+- `neo/build/Neo-TVLauncher.apk`
+- `companion/build/Neo-TVLauncher-Companion.apk`
 
 A local development keystore is generated if absent. Keys/build output are ignored by Git. A locally generated key will not match the maintainer's release key, so locally signed builds cannot update a differently signed installed APK in place. Never commit a signing key or an ADB private key.
 
@@ -34,3 +34,5 @@ These include grid navigation, categories, PIN/timed access, ADB protocol/cleanu
 ## Cinematic media
 
 The current runtime video is checked in under `neo/assets/neo/video/`. To regenerate it, install Python and `imageio-ffmpeg`, then run the scripts in `media-sources/` in this order: `render-cinematic-v2.py`, `render-cinematic-smooth.py`, `render-cinematic-stars.py`. They create intermediate files ignored by Git. Rendering can take several minutes. Asset prompts, provenance and credits are in `docs/VISUAL-CREDITS.md`.
+
+Version 1 uses Android version codes 200 (TV) and 140 (phone) so it updates the previous releases without a downgrade or data reset. Both visible version names are `1`; package identifiers and signing identities are retained.

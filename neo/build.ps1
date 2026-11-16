@@ -19,7 +19,7 @@ if ($LASTEXITCODE -ne 0) { throw "aapt2 compile failed" }
 
 & "$BT\aapt2.exe" link -o build\unsigned.apk -I "$JAR" --manifest AndroidManifest.xml `
     --java build\gen --min-sdk-version 24 --target-sdk-version 34 `
-    --version-code 190 --version-name "1.9.0-neo" build\res.zip
+    --version-code 200 --version-name "1" build\res.zip
 if ($LASTEXITCODE -ne 0) { throw "aapt2 link failed" }
 
 $javaFiles = Get-ChildItem -Recurse -Path src, build\gen -Filter "*.java" | Select-Object -ExpandProperty FullName
@@ -66,14 +66,14 @@ if ($LASTEXITCODE -ne 0) { throw "zipalign failed" }
 $KS = "debug.keystore"
 if (-not (Test-Path $KS)) {
     & keytool -genkeypair -keystore $KS -storepass android -keypass android -alias debug `
-        -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Neo TVos development" | Out-Null
+        -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Neo TVLauncher development" | Out-Null
 }
 
 & "$BT\apksigner.bat" sign --ks $KS --ks-pass pass:android --key-pass pass:android `
-    --out build\TVOS-Neo.apk build\aligned.apk
+    --out build\Neo-TVLauncher.apk build\aligned.apk
 if ($LASTEXITCODE -ne 0) { throw "apksigner failed" }
 
-Write-Host "Built build\TVOS-Neo.apk"
+Write-Host "Built build\Neo-TVLauncher.apk"
 
 
 

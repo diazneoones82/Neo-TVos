@@ -1,4 +1,4 @@
-﻿param([string]$JavaHome=$env:JAVA_HOME)
+param([string]$JavaHome=$env:JAVA_HOME)
 $ErrorActionPreference='Stop'
 if(!$JavaHome){$javac=Get-Command javac.exe -ErrorAction Stop;$JavaHome=Split-Path (Split-Path $javac.Source -Parent) -Parent}
 $root=Split-Path $PSScriptRoot -Parent

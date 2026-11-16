@@ -11,7 +11,7 @@ final class NeoScreensaverView extends View {
  private final float[] mesh=new float[41*25*2];
  private final long started=android.os.SystemClock.uptimeMillis();private final float[] stars=new float[540];
  private final Runnable frame=()->{if(running&&isAttachedToWindow())invalidate();};
- NeoScreensaverView(Context context){super(context);mode=context.getSharedPreferences("neo",0).getString("saver_wallpaper","black");setBackgroundColor(Color.BLACK);glowText=context.getSharedPreferences("neo",0).getString("saver_text","Neo TVos");
+ NeoScreensaverView(Context context){super(context);mode=context.getSharedPreferences("neo",0).getString("saver_wallpaper","black");setBackgroundColor(Color.BLACK);glowText=context.getSharedPreferences("neo",0).getString("saver_text","Neo TVLauncher");
   Random random=new Random(719);for(int i=0;i<stars.length;i++)stars[i]=random.nextFloat();
   if(mode.equals("lake")||mode.equals("custom"))new Thread(()->{Bitmap decoded=null;try{
    BitmapFactory.Options o=new BitmapFactory.Options();o.inJustDecodeBounds=true;

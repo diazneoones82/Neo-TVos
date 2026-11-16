@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory=$true)][string]$Device,
-    [string]$ApkPath = (Join-Path $PSScriptRoot 'build\TVOS-Neo.apk'),
+    [string]$ApkPath = (Join-Path $PSScriptRoot 'build\Neo-TVLauncher.apk'),
     [string]$AdbPath,
     [string]$PairEndpoint,
     [switch]$ScanOnly,

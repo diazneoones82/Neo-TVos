@@ -1,5 +1,5 @@
-﻿$ErrorActionPreference='Stop'
-. (Join-Path $PSScriptRoot '..\Neo-TVos-CLI.ps1') -NoMenu -Device 'test-tv:5555' -AdbPath 'fake-adb'
+$ErrorActionPreference='Stop'
+. (Join-Path $PSScriptRoot '..\Neo-TVLauncher-CLI.ps1') -NoMenu -Device 'test-tv:5555' -AdbPath 'fake-adb'
 $fixtures=Join-Path $PSScriptRoot '..\..\audit\cli-tests'
 New-Item -ItemType Directory -Force -Path $fixtures,(Join-Path $fixtures 'backup') | Out-Null
 @{device='test-tv:5555'}|ConvertTo-Json|Set-Content (Join-Path $fixtures 'device.json')

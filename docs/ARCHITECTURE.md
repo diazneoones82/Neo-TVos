@@ -1,6 +1,6 @@
 # Neo runtime
 
-The 1.9 runtime keeps the existing Neo behavior while retiring the unused inherited launcher implementation. The checkpoint before replacement is `checkpoint/pre-independent-runtime-20261116`; a local Git bundle also preserves it. Checkpoints and older releases remain historical records with their original notices.
+The Version 1 runtime keeps the existing Neo behavior while retiring the unused inherited launcher implementation. The checkpoint before replacement is `checkpoint/pre-independent-runtime-20261116`; a local Git bundle also preserves it. Checkpoints and older releases remain historical records with their original notices.
 
 ## Modules and process boundaries
 
