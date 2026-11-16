@@ -1,0 +1,5 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="com.tvos.neo.tests">
+    <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="34" />
+    <application android:label="Neo runtime tests" />
+    <instrumentation android:name="com.tvos.neo.NeoRuntimeInstrumentation" android:targetPackage="com.tvos.neo" android:label="Neo runtime contracts" />
+</manifest>

@@ -1,21 +1,10 @@
-tvOS Launcher
-Copyright 2026 techgenius
+Neo TVos
+Copyright 2026 Neo TVos contributors
+Licensed under Apache License, Version 2.0 (see LICENSE).
 
-Licensed under the Apache License, Version 2.0 (see LICENSE).
-
-Credits and acknowledgements:
-- Hume Launcher (https://github.com/petrobot-admin/hume-launcher)
-- Couch TV (https://github.com/Seagey/couch-tv)
-- CleanYourTV (https://github.com/Gathin23/cleanyourtv)
-
-This product includes third-party components under their own licences:
-
-- Inter typeface — Copyright the Inter Project Authors — SIL Open Font License 1.1
-  (assets/fonts/Inter-LICENSE.txt)
-- QR Code generator library (Java) — Copyright (c) Project Nayuki — MIT License
-  (src/io/nayuki/qrcodegen)
-
-Neo TVos is a modified distribution of tvOS Launcher.
-Upstream source: https://github.com/techgenius1/tvOS-Launcher
-Neo TVos modifications and Android companion: diazneoones82.
-Generated cinematic assets and NASA visualization provenance: docs/VISUAL-CREDITS.md.
+The current runtime uses Android framework APIs and platform fonts.
+Cinematic assets include NASA Goddard / Jeremy Schnittman visualization
+and generated spacecraft, starfield and debris. See docs/VISUAL-CREDITS.md.
+Weather data is supplied by Open-Meteo, MET Norway and wttr.in;
+automatic location uses ipwho.is. Provider data terms remain applicable.
+Earlier releases and their source checkpoints retain their original notices.

@@ -6,9 +6,9 @@ Clean up general apps on **Google TV, Android TV and compatible TV boxes**, then
 
 | What you need | Download |
 | --- | --- |
-| Android phone installer/support app | [Neo TVos Companion 1.2.2](https://github.com/diazneoones82/Neo-TVos/releases/download/v1.8.2/Neo-TVos-Companion-1.2.2.apk) |
-| Windows menu + launcher APK | [Windows CLI bundle](https://github.com/diazneoones82/Neo-TVos/releases/download/v1.8.2/Neo-TVos-1.8.2-Windows-CLI.zip) |
-| Launcher APK only — install this on the TV | [Neo TVos 1.8.2](https://github.com/diazneoones82/Neo-TVos/releases/download/v1.8.2/Neo-TVos-1.8.2.apk) |
+| Android phone installer/support app | [Neo TVos Companion 1.3.0](https://github.com/diazneoones82/Neo-TVos/releases/download/v1.9.0/Neo-TVos-Companion-1.3.0.apk) |
+| Windows menu + launcher APK | [Windows CLI bundle](https://github.com/diazneoones82/Neo-TVos/releases/download/v1.9.0/Neo-TVos-1.9.0-Windows-CLI.zip) |
+| Launcher APK only — install this on the TV | [Neo TVos 1.9.0](https://github.com/diazneoones82/Neo-TVos/releases/download/v1.9.0/Neo-TVos-1.9.0.apk) |
 
 [All releases and SHA256 checksums](https://github.com/diazneoones82/Neo-TVos/releases) · [Android phone guide](docs/ANDROID.md) · [Windows guide](docs/WINDOWS.md)
 
@@ -70,6 +70,6 @@ If your TV uses pairing-code wireless debugging, Windows option **2** handles pa
 
 [Build instructions](docs/BUILDING.md) · [Validation](docs/VALIDATION.md) · [Visual credits and generation prompts](docs/VISUAL-CREDITS.md)
 
-Neo TVos is a modified distribution of [techgenius1/tvOS-Launcher](https://github.com/techgenius1/tvOS-Launcher). The upstream **Apache 2.0** license and [NOTICE](NOTICE) are retained. Fonts, QR code code and other assets retain their own notices. The cinematic scene uses credited NASA visualization and original generated assets; no *Interstellar* film footage is packaged.
+The current runtime uses Neo-authored home, input, symbol and weather modules with separate Binder workers for catalog, weather and theme validation. Android platform fonts supply the typography. Source is licensed under **Apache 2.0**; see [NOTICE](NOTICE). The cinematic scene uses credited NASA visualization and generated assets; no film footage is packaged. [Architecture and replacement validation](docs/ARCHITECTURE.md).
 
 Signing keys, ADB private keys, device reports and personal screenshots are not published. APKs are provided as GitHub Release assets rather than committed to the source tree.

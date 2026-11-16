@@ -1,4 +1,4 @@
-﻿[CmdletBinding()]
+[CmdletBinding()]
 param(
     [Parameter(Mandatory=$true)][string]$Device,
     [string]$ApkPath = (Join-Path $PSScriptRoot 'build\TVOS-Neo.apk'),
@@ -82,7 +82,7 @@ $catalog = [ordered]@{
 }
 # Only these reviewed entertainment package IDs may ever enter this cleanup plan.
 # Unknown user apps and OEM apps are inventoried but cannot be removed by this script.
-$protectedPattern = '^(android$|com\.android\.|com\.realtek\.|com\.apps\.|com\.tvos\.neo($|\.)|com\.techgenius\.tvoslauncher$|com\.google\.android\.(gms|gsf|tvlauncher|apps\.tv\.launcherx|permissioncontroller|inputmethod|networkstack|providers|ext|modulemetadata|webview|packageinstaller|tv\.remote)(\.|$))'
+$protectedPattern = '^(android$|com\.android\.|com\.realtek\.|com\.apps\.|com\.tvos\.neo($|\.)|com\.google\.android\.(gms|gsf|tvlauncher|apps\.tv\.launcherx|permissioncontroller|inputmethod|networkstack|providers|ext|modulemetadata|webview|packageinstaller|tv\.remote)(\.|$))'
 $candidates = @()
 foreach ($pkg in $catalog.Keys) {
     if ($all -notcontains $pkg -or $pkg -match $protectedPattern -or $previousHome -match ([regex]::Escape($pkg) + '/')) { continue }
@@ -163,7 +163,7 @@ if ($DisableAutomaticSystemUpdates -or $EnableAutomaticSystemUpdates) {
 Invoke-TV -Arguments @('shell','cmd','package','set-home-activity','com.tvos.neo/.NeoHomeActivity') -AllowFailure | Out-Host
 if ($EnableHomeFix) {
     $existing = Invoke-TV -Arguments @('shell','settings','get','secure','enabled_accessibility_services')
-    $services = @($existing -split ':' | Where-Object { $_ -and $_ -ne 'null' -and $_ -notmatch '^com\.(techgenius\.tvoslauncher|tvos\.neo)/' })
+    $services = @($existing -split ':' | Where-Object { $_ -and $_ -ne 'null' -and $_ -notmatch '^com\.tvos\.neo/' })
     $services += 'com.tvos.neo/com.tvos.neo.NeoHomeService'
     Invoke-TV -Arguments @('shell','settings','put','secure','enabled_accessibility_services',($services -join ':')) | Out-Null
     Invoke-TV -Arguments @('shell','settings','put','secure','accessibility_enabled','1') | Out-Null

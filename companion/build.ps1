@@ -1,4 +1,4 @@
-﻿$ErrorActionPreference='Stop'
+$ErrorActionPreference='Stop'
 Set-Location $PSScriptRoot
 . (Join-Path $PSScriptRoot '..\tools\Resolve-AndroidToolchain.ps1')
 $toolchain=Resolve-NeoToolchain
@@ -22,7 +22,7 @@ Copy-Item -LiteralPath $apk -Destination assets\Neo-TVos.apk -Force
 New-Item -ItemType Directory -Force build\gen,build\classes,build\dex|Out-Null
 & "$bt\aapt2.exe" compile --dir res -o build\res.zip
 if($LASTEXITCODE){throw 'Resource compile failed'}
-& "$bt\aapt2.exe" link -o build\base.apk -I $android --manifest AndroidManifest.xml --java build\gen --version-code 122 --version-name '1.2.2' build\res.zip
+& "$bt\aapt2.exe" link -o build\base.apk -I $android --manifest AndroidManifest.xml --java build\gen --version-code 130 --version-name '1.3.0' build\res.zip
 if($LASTEXITCODE){throw 'Resource link failed'}
 $files=@(Get-ChildItem src,build\gen -Recurse -Filter *.java|ForEach-Object FullName)
 & "$java\javac.exe" -encoding UTF-8 --release 11 -classpath $android -d build\classes @files

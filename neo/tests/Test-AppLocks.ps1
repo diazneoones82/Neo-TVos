@@ -5,7 +5,7 @@ $root=Split-Path $PSScriptRoot -Parent
 $out=Join-Path $root 'test-output\lock-host'
 New-Item -ItemType Directory -Force $out|Out-Null
 $files=@(Get-ChildItem (Join-Path $PSScriptRoot 'lock-host') -Recurse -Filter *.java|ForEach-Object FullName)
-$files+=Join-Path $root 'src\com\techgenius\tvoslauncher\NeoAppLock.java'
+$files+=Join-Path $root 'src\com\tvos\neo\NeoAppLock.java'
 & "$JavaHome\bin\javac.exe" -d $out @files
 if($LASTEXITCODE){throw 'Compilation failed'}
 & "$JavaHome\bin\java.exe" -cp $out com.tvos.neo.NeoAppLockTest

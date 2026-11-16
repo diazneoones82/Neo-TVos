@@ -29,7 +29,7 @@ Run host checks without connecting to a TV:
 powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\Test-Host.ps1
 ```
 
-These include grid navigation, PIN/timed access, ADB protocol/cleanup policy, and CLI cancellation mocks. Live USB transport still requires physical hardware.
+These include grid navigation, categories, PIN/timed access, ADB protocol/cleanup policy, and CLI cancellation mocks. Run `tools/Verify-Runtime.ps1` to check retired-file fingerprints and process boundaries. See `docs/ARCHITECTURE.md` for connected-TV instrumentation. Live USB transport still requires physical hardware.
 
 ## Cinematic media
 

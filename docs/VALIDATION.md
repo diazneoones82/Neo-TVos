@@ -13,3 +13,12 @@ CLI checks cover cancellation of every menu choice without invoking ADB/install,
 USB discovery's no-device case was tested. Full phone-to-TV OTG transfer was not hardware-tested and requires compatible USB roles/ports. Pairing-code/TLS wireless debugging is not implemented by the phone companion. OEM settings, accessibility behavior and power/screen-saver timing may vary.
 
 Only generic results are published. No device reports, serial numbers, LAN addresses, private screenshots or debugging keys are included.
+
+## Version 1.9 replacement validation
+
+- The checkpoint retains the previous tree. All 451 identified inherited-file fingerprints are absent from the current runtime.
+- Both portable source builds pass; final DEX inspection confirms the replacement input, symbol and forecast classes and absence of retired helpers/libraries/assets.
+- Host suites pass: 36,900 bounded remote-navigation cases, categories, PIN/expiry/reboot, ADB authorization and streaming, cleanup protection, and 21 menu cancellation paths.
+- Connected-TV instrumentation passes 59 runtime assertions, including all three forecast decoders, isolated theme UID, separate catalog/weather processes, catalog death/recovery, menus and unclipped focused cards.
+- The companion embeds the exact new launcher APK with a matching SHA256. The phone was disconnected during this update, so a fresh companion hardware installation was not repeated.
+- The new glass controls and lake background were visually checked on the connected TV. Older validation above describes earlier tests; it is not a claim that every old test was repeated for this version.
