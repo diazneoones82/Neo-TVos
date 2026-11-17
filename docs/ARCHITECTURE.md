@@ -10,12 +10,13 @@ The Version 1 runtime keeps the existing Neo behavior while retiring the unused 
 | NeoCatalogService | Installed-app and icon-pack discovery | `:catalog` Binder worker |
 | NeoWeatherService + NeoForecast | City lookup, location, provider adapters and cache | `:weather` Binder worker |
 | NeoThemeService | Validate imported theme tokens | `:theme`, isolated UID, no network/files |
+| NeoInstallService | Expiring QR-paired TLS receiver and reviewed package sessions | `:installer` Binder worker |
 | NeoInputs | Read the Android TV hardware-input registry | Small platform adapter |
 | NeoSymbols | Draw Neo control marks | Local Canvas rendering |
 | NeoHomeService | Optional Home interception and access-window expiry | Accessibility service |
 | NeoDreamService | System screensaver integration | Android DreamService |
 
-This is an Android service architecture inspired by microkernel boundaries, not an operating-system microkernel. Catalog and weather have separate processes but share the application UID; theme validation additionally uses an isolated UID. UI requests are asynchronous with bounded timeouts. Worker death does not terminate Home; requests can reconnect.
+This is an Android service architecture inspired by microkernel boundaries, not an operating-system microkernel. Catalog, weather and the installer have separate processes but share the application UID; theme validation additionally uses an isolated UID. UI requests are asynchronous with bounded timeouts. Worker death does not terminate Home; requests can reconnect.
 
 ## Replacement scope
 
@@ -48,4 +49,10 @@ Weather API references: [Open-Meteo](https://open-meteo.com/en/docs), [MET Norwa
 
 The optional Home accessibility service records whether sleep began on Home or on an unrelated app. Screen-on/unlock events request a bounded Home return only for Home-origin sleep; normal apps keep their resume destination. Pending state survives service rebinds. Neo's system dream explicitly returns to Home when its recorded origin was Home. Keyguard/System UI overlays do not overwrite the origin.
 
-The space player's temporary TextureView surface loss releases its decoder but does not permanently close the view. A replacement surface recreates playback at the saved position. Permanent disposal still releases playback and exhaust animation. This prevents a retained screensaver from staying black after its surface is recreated.
+The space player uses a native SurfaceView video plane. A dedicated decoder thread owns MediaPlayer calls; the UI reads cached playback state. Surface replacement recreates playback at its saved position. Exhaust frames are small cached software-composited sprites, avoiding per-frame GPU offscreen masking. Permanent disposal releases both playback and animation. Some TV screenshot tools omit the hardware video plane, so physical viewing is part of validation.
+
+## Phone-to-TV installation
+
+The installer is closed until the TV pairing screen opens it. An expiring QR carries a private-network endpoint, random bearer and self-signed TLS certificate fingerprint. The phone pins that fingerprint before sending credentials. Neo implements its bounded QR encoder/scanner and binary base/split transport in shared Java source. Camera images stay on the phone. A software JCA key in app-private storage avoids OEM AndroidKeyStore/Conscrypt signing incompatibility; the key is never transferred.
+
+Uploads are size/path/hash checked and staged privately. The TV reviews each request, then Android PackageInstaller asks for native confirmation. Only its result callback is authoritative success. Existing system packages and core identities are excluded. Play requests open the official TV store listing after TV approval; store installation remains in Google Play. Closing the pairing screen cancels the receiver. See [remote apps](REMOTE-APPS.md) and [test procedure](REMOTE-TESTING.md).

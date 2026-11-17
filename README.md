@@ -47,6 +47,10 @@ The original launcher stays installed. The companion also has a USB/OTG connecti
 
 If your TV uses pairing-code wireless debugging, Windows option **2** handles pairing and the separate connection address. [Windows options and recovery →](docs/WINDOWS.md)
 
+## Install additional apps from your phone
+
+On TV: **Neo Settings → Install apps remotely**. On phone: **Install apps remotely / Scan TV QR**. Scan, confirm the TV, then choose a phone app or an official TV Play Store listing. APK transfers include required splits and need TV/Android approval. [Remote app installation guide](docs/REMOTE-APPS.md).
+
 ## Launcher features
 
 - Glass-style home screen with categories, favorites, app ordering, themes and icon-pack support.
@@ -71,6 +75,6 @@ If your TV uses pairing-code wireless debugging, Windows option **2** handles pa
 
 [Build instructions](docs/BUILDING.md) · [Validation](docs/VALIDATION.md) · [Visual credits and generation prompts](docs/VISUAL-CREDITS.md)
 
-The current runtime uses Neo-authored home, input, symbol and weather modules with separate Binder workers for catalog, weather and theme validation. Android platform fonts supply the typography. Source is licensed under **Apache 2.0**; see [NOTICE](NOTICE). The cinematic scene uses an original AI-generated black hole and galaxies, with custom orbital-flow animation and the existing generated spacecraft and debris. No external visualization or film footage is packaged. [Architecture and replacement validation](docs/ARCHITECTURE.md).
+The current runtime uses Neo-authored home, input, symbol and weather modules with separate Binder workers for catalog, weather, remote installation and theme validation. Android platform fonts supply the typography. Source is licensed under **Apache 2.0**; see [NOTICE](NOTICE). The cinematic scene uses an original AI-generated black hole and galaxies, with custom spatially advected orbital-flow animation and the existing generated spacecraft and debris. No external visualization or film footage is packaged. [Architecture and replacement validation](docs/ARCHITECTURE.md).
 
 Signing keys, ADB private keys, device reports and personal screenshots are not published. APKs are provided as GitHub Release assets rather than committed to the source tree.

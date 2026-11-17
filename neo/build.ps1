@@ -19,10 +19,10 @@ if ($LASTEXITCODE -ne 0) { throw "aapt2 compile failed" }
 
 & "$BT\aapt2.exe" link -o build\unsigned.apk -I "$JAR" --manifest AndroidManifest.xml `
     --java build\gen --min-sdk-version 24 --target-sdk-version 34 `
-    --version-code 202 --version-name "1" build\res.zip
+    --version-code 210 --version-name "1" build\res.zip
 if ($LASTEXITCODE -ne 0) { throw "aapt2 link failed" }
 
-$javaFiles = Get-ChildItem -Recurse -Path src, build\gen -Filter "*.java" | Select-Object -ExpandProperty FullName
+$javaFiles = Get-ChildItem -Recurse -Path src, build\gen, ..\shared\src -Filter "*.java" | Select-Object -ExpandProperty FullName
 $javaFiles | Out-File -Encoding ascii build\sources.txt
 & javac -encoding UTF-8 --release 11 -classpath "$JAR" -d build\classes "@build\sources.txt"
 if ($LASTEXITCODE -ne 0) { throw "javac failed" }

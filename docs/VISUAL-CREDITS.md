@@ -38,3 +38,9 @@ Use case: photorealistic-natural astronomical visual effects asset. Create one o
 ## Optional engine glow
 
 Neo Settings → Screensaver → Spaceship engine exhaust toggles a subtle breathing-blue ion glow. The default is Off. It is a small transparent Canvas layer; the spaceship and debris PNGs and the encoded craft trajectory are unchanged. Glow position, bank and breathing phase come from MediaPlayer's current playback position so seeking, pausing and looping do not use an independent wall clock. The glow renderer stops with the player. This is an artistic engine effect, not a propulsion simulation.
+
+## Spatial swirl and attached engine update
+
+The current renderer advects the generated plasma's material detail around elliptical orbital coordinates: outer material completes one orbit per 32-second loop, and inner material completes three. Upper and lower luminous arcs also carry circulating detail, completing two rotations per loop. Mirrored tile edges and integer orbital periods close the source texture motion at the boundary. This replaces the earlier brightness-only modulation. An independently coded fixed lensed outline and dark-center mask preserve the original generated silhouette. Published black-hole visualizations were consulted as conceptual references for disk motion/lensing; their pixels, video and simulation code are not render inputs.
+
+Engine glow begins at the rear tip behind the habitat ring (source coordinate approximately 98,510), extending away from the ship. The unchanged craft alpha fully masks the overlay, so no flame or artificial nozzle paints over the front of the ring. The PNG spacecraft/debris remain byte-identical. Playback JNI calls run on a dedicated decoder thread; the Canvas effect uses a sampled/extrapolated playback clock instead of querying native media from the UI thread.

@@ -1,0 +1,4 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.neotv.remote.fixture" split="config.neotest">
+    <uses-sdk android:minSdkVersion="24" android:targetSdkVersion="34" />
+    <application android:hasCode="false" />
+</manifest>

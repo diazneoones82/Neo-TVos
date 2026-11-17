@@ -21,17 +21,19 @@ public final class NeoRuntimeInstrumentation extends Instrumentation {
     @Override public void onCreate(Bundle options){super.onCreate(options);start();}
     @Override public void onStart(){
         Bundle report=new Bundle();
+        final Thread testThread=Thread.currentThread();Thread watchdog=new Thread(()->{try{Thread.sleep(120000);if(testThread.isAlive()){Bundle failure=new Bundle();StringBuilder trace=new StringBuilder("FAIL: runtime test exceeded 120s\n");for(StackTraceElement frame:android.os.Looper.getMainLooper().getThread().getStackTrace())trace.append(frame).append('\n');failure.putString("stream",trace.toString());sendStatus(0,failure);android.os.Process.killProcess(android.os.Process.myPid());}}catch(InterruptedException stopped){}},"neo-test-watchdog");watchdog.setDaemon(true);watchdog.start();
         try{
-            forecastContracts();
-            processContracts();
-            homeContracts();
-            spaceContracts();
+            stage("forecast");forecastContracts();
+            stage("workers");processContracts();
+            stage("Home");homeContracts();
+            stage("space playback");spaceContracts();
             report.putString("stream","PASS: "+checks+" runtime assertions; forecast codecs, input adapter, control symbols, isolated workers, Home navigation and space video playback\n");
-            finish(-1,report);
+            finish(-1,report);watchdog.interrupt();
         }catch(Throwable failure){
-            report.putString("stream","FAIL: "+android.util.Log.getStackTraceString(failure));finish(0,report);
+            report.putString("stream","FAIL: "+android.util.Log.getStackTraceString(failure));finish(0,report);watchdog.interrupt();
         }
     }
+    private void stage(String name){Bundle status=new Bundle();status.putString("stream","Checking "+name+"\n");sendStatus(1,status);}
     private void forecastContracts() throws Exception {
         String daily="\"daily\":{\"time\":[\"2099-01-01\"],\"weather_code\":[63],\"temperature_2m_max\":[22.4],\"temperature_2m_min\":[10.2],\"precipitation_probability_max\":[80]}";
         JSONObject open=new JSONObject("{\"current\":{\"temperature_2m\":18.6,\"apparent_temperature\":17.2,\"relative_humidity_2m\":70,\"is_day\":1,\"weather_code\":63,\"wind_speed_10m\":12.5},"+daily+"}");
@@ -73,6 +75,10 @@ public final class NeoRuntimeInstrumentation extends Instrumentation {
         Bundle weather=NeoWorkerClient.blocking(getTargetContext(),NeoWeatherService.class,weatherRequest,55000);
         require(weather.getInt("worker_pid")>0 && weather.getInt("worker_pid")!=android.os.Process.myPid(),"Weather separate process");
         require(weather.containsKey("weather")||weather.containsKey("error"),"Weather responds without blocking Home");
+        Bundle installerRequest=new Bundle();installerRequest.putString("op","status");
+        Bundle installer=NeoWorkerClient.blocking(getTargetContext(),NeoInstallService.class,installerRequest,5000);
+        require(installer.getInt("worker_pid")>0&&installer.getInt("worker_pid")!=android.os.Process.myPid(),"Remote installer has a separate worker process");
+        require(new JSONObject(installer.getString("status")).getString("state").equals("closed"),"Remote receiver is closed unless pairing is explicitly opened");
     }
     private void homeContracts() throws Exception {
         NeoHomeActivity home=(NeoHomeActivity)startActivitySync(new Intent(getTargetContext(),NeoHomeActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
@@ -99,6 +105,7 @@ public final class NeoRuntimeInstrumentation extends Instrumentation {
             });
         }
         menuContract(home,"settingsMenu","App lock & parental controls");
+        menuContract(home,"settingsMenu","Install apps remotely");
         menuContract(home,"themeMenu","Aurora Glass");
         menuContract(home,"clockMenu","Show Dual Live clock");
         menuContract(home,"screensaverTimerMenu","2 minutes");
@@ -138,43 +145,23 @@ public final class NeoRuntimeInstrumentation extends Instrumentation {
         try{
             saver=startActivitySync(new Intent(getTargetContext(),NeoScreensaverActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
             Thread.sleep(3000);waitForIdleSync();
-            android.app.Activity current=saver;final android.media.MediaPlayer[] media={null};
+            android.app.Activity current=saver;final NeoSpaceVideo[] video={null};
             runOnMainSync(()->{
                 try{
                     java.lang.reflect.Field field=NeoScreensaverActivity.class.getDeclaredField("view");field.setAccessible(true);
-                    Object view=field.get(current);require(view instanceof NeoSpaceVideo,"Space mode selects video renderer");
-                    java.lang.reflect.Field player=NeoSpaceVideo.class.getDeclaredField("player");player.setAccessible(true);
-                    media[0]=(android.media.MediaPlayer)player.get(view);
-                    require(media[0]!=null && media[0].isPlaying(),"Space video is playing on TV");
-                    require(media[0].isLooping(),"Space video loops");
-                    require(media[0].getVideoWidth()==1920 && media[0].getVideoHeight()==1080,"Space video is 1080p");
-                    require(((NeoSpaceVideo)view).getChildCount()==2,"Live space player includes optional blue engines");
+                    Object view=field.get(current);require(view instanceof NeoSpaceVideo,"Space mode selects video renderer");video[0]=(NeoSpaceVideo)view;
+                    require(video[0].isVideoPlaying(),"Space video is playing on TV");require(video[0].loops(),"Space video loops");
+                    require(video[0].videoWidth()==1920&&video[0].videoHeight()==1080,"Space video is 1080p");
+                    require(video[0].getChildCount()==2,"Live space player includes optional blue engines");
                 }catch(ReflectiveOperationException error){throw new AssertionError(error);}
             });
-            int before=media[0].getCurrentPosition();Thread.sleep(800);
-            require(media[0].getCurrentPosition()>before,"Space playback clock advances");
-            runOnMainSync(()->{
-                try{
-                    java.lang.reflect.Field field=NeoScreensaverActivity.class.getDeclaredField("view");field.setAccessible(true);
-                    NeoSpaceVideo video=(NeoSpaceVideo)field.get(current);
-                    android.view.TextureView texture=(android.view.TextureView)video.getChildAt(0);
-                    android.graphics.SurfaceTexture surface=texture.getSurfaceTexture();
-                    require(surface!=null,"Video has a live surface before standby-style loss");
-                    video.onSurfaceTextureDestroyed(surface);
-                    video.onSurfaceTextureAvailable(surface,texture.getWidth(),texture.getHeight());
-                }catch(ReflectiveOperationException error){throw new AssertionError(error);}
-            });
-            Thread.sleep(1800);
-            runOnMainSync(()->{
-                try{
-                    java.lang.reflect.Field field=NeoScreensaverActivity.class.getDeclaredField("view");field.setAccessible(true);
-                    java.lang.reflect.Field player=NeoSpaceVideo.class.getDeclaredField("player");player.setAccessible(true);
-                    media[0]=(android.media.MediaPlayer)player.get(field.get(current));
-                    require(media[0]!=null && media[0].isPlaying(),"Video recovers after a temporary surface loss");
-                }catch(ReflectiveOperationException error){throw new AssertionError(error);}
-            });
-            media[0].seekTo(12000);Thread.sleep(1200);
-            require(media[0].isPlaying(),"Blue-exhaust playback survives seek and remains synchronized");
+            int before=video[0].decoderPosition();Thread.sleep(800);require(video[0].decoderPosition()>before,"Actual decoder playback clock advances");
+            final android.view.SurfaceView[] texture={null};
+            runOnMainSync(()->{texture[0]=(android.view.SurfaceView)video[0].getChildAt(0);require(texture[0].getHolder().getSurface().isValid(),"Video surface exists before loss");video[0].removeView(texture[0]);});
+            Thread.sleep(700);
+            runOnMainSync(()->video[0].addView(texture[0],0,new android.widget.FrameLayout.LayoutParams(-1,-1)));
+            long deadline=android.os.SystemClock.elapsedRealtime()+8000;while(!video[0].isVideoPlaying()&&android.os.SystemClock.elapsedRealtime()<deadline)Thread.sleep(100);require(video[0].isVideoPlaying(),"Decoder recovers after real video-surface detach/reattach");
+            video[0].seekTo(12000);Thread.sleep(1200);require(video[0].isVideoPlaying(),"Blue-exhaust playback survives seek and remains synchronized");
             android.graphics.Bitmap capture=getUiAutomation().takeScreenshot();
             if(capture!=null){
                 java.io.File folder=getTargetContext().getExternalFilesDir("runtime-tests");

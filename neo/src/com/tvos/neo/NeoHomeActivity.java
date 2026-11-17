@@ -425,8 +425,8 @@ public final class NeoHomeActivity extends Activity {
     private String orderPreference(){return "all".equals(activeCategory)?"order":"category_order:"+activeCategory;}
 
     private void settingsMenu() {
-        menu("Neo TVLauncher Settings", Arrays.asList("Screensaver", "App lock & parental controls", "App sections & categories", "Home controls", "Theme Studio", "Icon packs", "Clock & countdown", "Weather", "System updates", "Restore hidden apps", "Android TV settings", "Make Neo the Home launcher"),
-                Arrays.asList(this::screensaverMenu,this::parentalMenu,this::categoriesMenu,this::controlsMenu,this::themeMenu, this::iconPackMenu, this::clockMenu, this::showWeather,this::updatesMenu,
+        menu("Neo TVLauncher Settings", Arrays.asList("Install apps remotely", "Screensaver", "App lock & parental controls", "App sections & categories", "Home controls", "Theme Studio", "Icon packs", "Clock & countdown", "Weather", "System updates", "Restore hidden apps", "Android TV settings", "Make Neo the Home launcher"),
+                Arrays.asList(()->startActivity(new Intent(this,NeoRemoteInstallActivity.class)),this::screensaverMenu,this::parentalMenu,this::categoriesMenu,this::controlsMenu,this::themeMenu, this::iconPackMenu, this::clockMenu, this::showWeather,this::updatesMenu,
                 () -> { prefs.edit().remove("hidden").apply(); renderApps(); toast("Hidden apps restored"); },
                 () -> safeStart(new Intent(Settings.ACTION_SETTINGS)),this::homeSetup));
     }

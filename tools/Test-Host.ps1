@@ -11,6 +11,11 @@ foreach($class in @('com.tvos.neo.NeoGridNavigationTest','com.neotvos.support.Co
 if($LASTEXITCODE){throw 'Wake policy compilation failed'}
 & "$javaHome\bin\java.exe" -cp $out com.tvos.neo.NeoWakePolicyTest
 if($LASTEXITCODE){throw 'Wake policy tests failed'}
+$protocolFiles=@(Get-ChildItem (Join-Path $root 'shared\src'),(Join-Path $root 'shared\tests') -Recurse -Filter *.java|ForEach-Object FullName)
+& "$javaHome\bin\javac.exe" -encoding UTF-8 --release 11 -d $out @protocolFiles
+if($LASTEXITCODE){throw 'Protocol test compilation failed'}
+& "$javaHome\bin\java.exe" -cp $out com.neotv.protocol.ProtocolTest
+if($LASTEXITCODE){throw 'QR/pairing/install-manifest tests failed'}
 & (Join-Path $root 'neo\tests\Test-AppLocks.ps1') -JavaHome $javaHome
 & (Join-Path $root 'neo\tests\Test-NeoCLI.ps1')
 $categoryOut=Join-Path $root 'neo\test-output\categories'
