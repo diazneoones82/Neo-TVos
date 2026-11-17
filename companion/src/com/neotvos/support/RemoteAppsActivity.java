@@ -50,7 +50,7 @@ public final class RemoteAppsActivity extends Activity {
             button("Choose an app installed on this phone",this::phoneApps);
             button("Install from Google Play on TV",this::playStore);
             button("Review current TV request",this::watch);
-            button("Disconnect from TV",()->{client.disconnect();client=null;tv=null;watching="";ui.removeCallbacks(poll);home();});
+            button("Disconnect from TV",()->{client.disconnect();client=null;tv=null;watching="";ui.removeCallbacks(poll);home();beginProgress("Disconnecting from TV");progress.finish("Disconnected from TV");alert("Disconnect completed","This phone is disconnected. Close pairing on the TV if you are finished.",null);});
         }
         button("Back to TV setup",this::finish);
     }
@@ -118,7 +118,7 @@ public final class RemoteAppsActivity extends Activity {
     private void watch(){
         if(client==null)return;ActionProgress previous=progress;page("TV installation status");progress.carryFrom(previous);progress.step("Checking TV request status");lastState="";
         paragraph("Complete any approval shown on the TV. This phone shows the TV's reported result; opening Google Play is not an installation result.");
-        button("Cancel request",()->{if(busy)return;busy=true;progress.step("Cancelling TV request");long screen=pageId;worker.execute(()->{try{JSONObject result=client.post("/cancel",new JSONObject());ui.post(()->{busy=false;if(!closed&&screen==pageId)renderStatus(result);});}catch(Exception failure){ui.post(()->{busy=false;if(!closed&&screen==pageId){progress.stop("Cancellation not confirmed. Check the TV.",false);alert("Cancellation not confirmed",failure.getMessage(),null);}});}});});
+        button("Cancel request",()->{if(busy)return;busy=true;progress.stop("Cancelling request",true);progress.step("Cancelling TV request");long screen=pageId;worker.execute(()->{try{JSONObject result=client.post("/cancel",new JSONObject());ui.post(()->{busy=false;if(!closed&&screen==pageId)renderStatus(result);});}catch(Exception failure){ui.post(()->{busy=false;if(!closed&&screen==pageId){progress.stop("Cancellation not confirmed. Check the TV.",false);alert("Cancellation not confirmed",failure.getMessage(),null);}});}});});
         button("Back",this::home);if(watching.isEmpty())watching="current";ui.removeCallbacks(poll);ui.post(poll);
     }
     private void renderStatus(JSONObject result){

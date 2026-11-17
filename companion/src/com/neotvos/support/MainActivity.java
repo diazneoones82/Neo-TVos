@@ -67,7 +67,7 @@ public final class MainActivity extends Activity{
   });
  }
  void disconnectSilent(){AdbClient old=adb;adb=null;if(old!=null)old.close();model="";serial="";identity="";packages.clear();thirdParty.clear();appNames.clear();homePackages.clear();}
- void disconnect(){generation++;actionId++;getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);disconnectSilent();target="Not connected";busy=false;home();}
+ void disconnect(){boolean cancelling=busy;generation++;actionId++;getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);disconnectSilent();target="Not connected";busy=false;home();progress.begin(cancelling?"Cancelling current task":"Disconnecting from TV");if(cancelling){progress.stop("Disconnected. Check the TV before retrying; an installation already started there may finish.",true);message("Task cancelled on this phone. Check the TV for any action already started.");}else{progress.finish("Disconnected from TV");completed("Disconnected from TV","");}}
  @Override protected void onDestroy(){closed=true;if(activeDialog!=null)activeDialog.dismiss();disconnectSilent();work.shutdownNow();try{unregisterReceiver(receiver);}catch(Exception ignored){}super.onDestroy();}
  @Override public void onBackPressed(){if(busy){message("Use Disconnect now to cancel the current task.");return;}home();}
 }
