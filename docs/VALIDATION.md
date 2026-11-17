@@ -52,3 +52,9 @@ The final phone-to-TV fixture update transferred both base and required split, i
 After installing the final rear-tip exhaust build, all 77 TV runtime assertions passed again. The user physically confirmed that the blue jet placement and upper/lower swirl look good. The temporary keep-awake setting was restored to its original value, and the previously enabled Neo Home accessibility binding was restored without replacing unrelated services.
 
 The official-store path was also verified through completion. From the companion, a package request for the free Send files to TV app was approved on the TV, opened in Google Play, and installed using the store's Install control. Android recorded `com.android.vending` as installer and the store changed to Open/Uninstall. The package was absent before this test and was removed afterwards; no previously installed app was removed. Pairing was closed and Home restored.
+
+## Companion action feedback (internal code 151)
+
+The updated companion was built and installed on the connected Android phone. Device instrumentation checks real partial progress (25%), retained measured progress while the elapsed clock updates, completion history and prompt, failure without false success, and cancellation preventing a stale worker from updating a replacement page. A real authorized NVIDIA SHIELD connection and general-app scan displayed their completed stages; no SHIELD apps or settings were changed.
+
+The remote flow was exercised with the owned base/split fixture: app compatibility check, transfer receipt prompt, TV review, Android approval wait and authoritative installation success. A rejected install also produced Action not completed rather than success. The fixture was removed from phone and TV and pairing closed afterwards. The phone has system animations disabled, so elapsed time supplements the native waiting bar without changing user settings. No screenshot containing device identity is published.

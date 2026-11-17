@@ -34,6 +34,8 @@ An Ethernet cable by itself does not enable debugging. Use the ADB port shown by
 6. Choose **Install Neo TVLauncher** and wait for success.
 7. Choose **Set Neo as Home**. If the TV keeps its OEM default launcher, use the separately confirmed **Home-button compatibility** option, then press Home on the TV remote.
 
+The companion shows a progress bar, elapsed time and completed-step messages for each action. Transfers use real byte percentages; TV approval and installation waits remain visibly in progress until the result arrives.
+
 The original launcher stays installed. The companion also has a USB/OTG connection option for TVs with a supported USB device/debug port. [Detailed phone instructions and connection limits →](docs/ANDROID.md)
 
 ## Use Windows

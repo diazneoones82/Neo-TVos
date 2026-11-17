@@ -59,3 +59,11 @@ Use the top Disconnect link to close or cancel the connection. If you no longer 
 ## Tested and limited
 
 The phone-to-TV network workflow, identification, general-app inventory, cancellation, disposable-app removal, APK installation and Home-button compatibility were tested. Full USB/OTG installation has not been hardware-tested. Pairing-code/TLS wireless debugging is not supported by this phone release; use the Windows CLI for pairing.
+
+## Progress and step completion
+
+Each action shows a progress card in the companion palette. Completed stages receive checkmarks and a completion message; acknowledge the final prompt with Continue. Connections, app scanning, cleanup, launcher installation and Home setup all report their results. USB scans report the number of compatible devices found.
+
+APK checks and transfers show actual bytes and percentages; network scans show addresses checked. Operations without a reliable total show a waiting bar and elapsed time instead. The elapsed counter still updates when Android system animations are disabled. Failure or cancellation stops progress without reporting success.
+
+For remote installs, the phone separately confirms delivery to the TV, TV review, Android approval and the final installation result. A 100% transfer means the files arrived; wait for Installation completed before assuming installation succeeded. Google Play requests report that the official store opened, then you finish installation on the TV.

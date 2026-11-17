@@ -1,10 +1,12 @@
 param(
     [Parameter(Mandatory=$true)][string]$Serial,
     [string]$Adb='adb',
-    [Parameter(Mandatory=$true)][string]$PairFile,
+    [string]$PairFile,
+    [switch]$ProgressOnly,
     [string]$KeyStore=(Join-Path $PSScriptRoot '..\neo\debug.keystore')
 )
 $ErrorActionPreference='Stop'
+if(!$ProgressOnly -and !$PairFile){throw 'Provide -PairFile for TLS/QR checks, or -ProgressOnly for action feedback checks'}
 $root=Split-Path $PSScriptRoot -Parent
 . (Join-Path $PSScriptRoot 'Resolve-AndroidToolchain.ps1')
 $toolchain=Resolve-NeoToolchain
@@ -27,8 +29,8 @@ if($LASTEXITCODE){throw 'Test signing failed'}
 & $Adb -s $Serial install --no-incremental -r "$out\Neo-Runtime-Tests.apk"
 if($LASTEXITCODE){throw 'Test installation failed'}
 try{
-    $pairingUri=(Get-Content -LiteralPath $PairFile -Raw).Trim()
-    $result=& $Adb -s $Serial shell am instrument -w -e pairing $pairingUri com.neotvos.support.tests/com.neotvos.support.PhoneRuntimeInstrumentation
+    if($ProgressOnly){$result=& $Adb -s $Serial shell am instrument -w com.neotvos.support.tests/com.neotvos.support.PhoneRuntimeInstrumentation}
+    else{$pairingUri=(Get-Content -LiteralPath $PairFile -Raw).Trim();$result=& $Adb -s $Serial shell am instrument -w -e pairing $pairingUri com.neotvos.support.tests/com.neotvos.support.PhoneRuntimeInstrumentation}
     $result|Tee-Object -FilePath "$out\runtime-results.txt"|Out-Host
     $summary=$result -join "`n"
     if($summary -notmatch 'PASS:' -or $summary -match 'FAIL:'){throw 'Runtime assertions failed'}

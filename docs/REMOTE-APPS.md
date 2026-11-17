@@ -39,3 +39,7 @@ The phone's “store opened” result means the listing opened; finish and check
 Cancel a pending transfer/request from the phone or TV. If Android's installer is already showing its confirmation, choose Cancel there as well. Closing the TV pairing screen stops the receiver. If a connection drops during installation, check the TV for the final result before retrying.
 
 The receiver uses TLS pinned to the scanned certificate, a random short-lived secret, size/path/hash validation, and the normal Android installer. QR credentials and app files are not uploaded to a cloud service. The receiver runs in a separate `:installer` process and is closed by default.
+
+## Visible progress
+
+The companion shows file-check and transfer percentages, elapsed time, completed-stage checkmarks and completion prompts. During TV review or Android approval it shows an ongoing waiting bar; approve on the TV to advance. Installation completed appears only after the TV reports success. Errors and cancelled requests stop without a success indicator. A Play Store handoff confirms only that the store opened.

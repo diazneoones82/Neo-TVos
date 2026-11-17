@@ -13,8 +13,8 @@ import java.util.*;
 final class RemoteTvClient {
     final NeoPairing pairing;
     private final SSLSocketFactory tls;
-    private volatile HttpsURLConnection active;
-    interface Progress{void sent(long current,long total);}
+    private volatile HttpsURLConnection active;private volatile long cancelVersion;
+    interface Progress{void sent(long current,long total);default void stage(String name){}default void preparing(long current,long total){}}
     RemoteTvClient(NeoPairing pairing)throws Exception{
         this.pairing=pairing;SSLContext context=SSLContext.getInstance("TLS");
         context.init(null,new TrustManager[]{new X509TrustManager(){
@@ -42,19 +42,20 @@ final class RemoteTvClient {
     JSONObject get(String path)throws Exception{HttpsURLConnection connection=open("GET",path,-1);try{return response(connection);}finally{connection.disconnect();active=null;}}
     JSONObject post(String path,JSONObject json)throws Exception{byte[] bytes=json.toString().getBytes("UTF-8");HttpsURLConnection connection=open("POST",path,bytes.length);try{try(OutputStream out=connection.getOutputStream()){out.write(bytes);}return response(connection);}finally{connection.disconnect();active=null;}}
     JSONObject upload(String label,String pkg,List<File> files,Progress progress)throws Exception{
-        List<NeoInstallWire.Part> parts=new ArrayList<>();byte[] buffer=new byte[65536];
+        final long version=cancelVersion;List<NeoInstallWire.Part> parts=new ArrayList<>();byte[] buffer=new byte[65536];long all=0,checked=0;for(File f:files)all+=f.length();if(progress!=null)progress.stage("Checking APK files");
         for(int i=0;i<files.size();i++){
-            File file=files.get(i);MessageDigest digest=MessageDigest.getInstance("SHA-256");try(InputStream input=new FileInputStream(file)){for(int n;(n=input.read(buffer))!=-1;)digest.update(buffer,0,n);}
+            File file=files.get(i);MessageDigest digest=MessageDigest.getInstance("SHA-256");try(InputStream input=new FileInputStream(file)){for(int n;(n=input.read(buffer))!=-1;){if(version!=cancelVersion)throw new InterruptedIOException("Transfer cancelled");digest.update(buffer,0,n);checked+=n;if(progress!=null)progress.preparing(checked,all);}}
             parts.add(new NeoInstallWire.Part(i==0?"base.apk":"split-"+i+".apk",file.length(),digest.digest()));
         }
-        NeoInstallWire manifest=new NeoInstallWire(label,pkg,parts);byte[] header=manifest.header();long total=manifest.length();HttpsURLConnection connection=open("POST","/install",total);
+        NeoInstallWire manifest=new NeoInstallWire(label,pkg,parts);byte[] header=manifest.header();long total=manifest.length();if(version!=cancelVersion)throw new InterruptedIOException("Transfer cancelled");if(progress!=null)progress.stage("Sending APK files");HttpsURLConnection connection=open("POST","/install",total);
         try{
             try(OutputStream output=new BufferedOutputStream(connection.getOutputStream())){
                 output.write(header);long sent=header.length;
-                for(File file:files)try(InputStream input=new FileInputStream(file)){for(int n;(n=input.read(buffer))!=-1;){output.write(buffer,0,n);sent+=n;if(progress!=null)progress.sent(sent,total);}}
+                for(File file:files)try(InputStream input=new FileInputStream(file)){for(int n;(n=input.read(buffer))!=-1;){if(version!=cancelVersion)throw new InterruptedIOException("Transfer cancelled");output.write(buffer,0,n);sent+=n;if(progress!=null)progress.sent(sent,total);}}
             }
+            if(progress!=null)progress.stage("Waiting for TV receipt confirmation");
             return response(connection);
         }finally{connection.disconnect();active=null;}
     }
-    void disconnect(){HttpsURLConnection connection=active;if(connection!=null)connection.disconnect();active=null;}
+    void disconnect(){cancelVersion++;HttpsURLConnection connection=active;if(connection!=null)connection.disconnect();active=null;}
 }

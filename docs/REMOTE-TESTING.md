@@ -18,3 +18,7 @@ python .\tools\Test-RemoteSecurity.py --pair-file '<private-pair-file>'
 The phone test checks pinned TLS, rejection of a wrong certificate fingerprint and QR decoding on Android. The LAN suite checks bearer rejection, bounded manifests, invalid paths/hashes and cancellation without installing a package. It requires the locally built disposable fixture. Pairing expires after ten minutes; reopen it and replace the private file when needed. Close the TV pairing screen afterwards and verify the endpoint no longer accepts connections.
 
 Host checks are `tools/Test-Host.ps1` and `tools/Verify-Runtime.ps1`. TV checks are `tools/Test-TV.ps1`; they include actual video surface recreation. These checks complement physical viewing of the space animation because some TV hardware video layers are absent from screenshots.
+
+## Companion action feedback
+
+`tools/Test-Phone.ps1 -Serial '<phone-serial>' -Adb '<adb.exe>' -ProgressOnly` exercises the actual phone UI and worker completion path without touching TV apps. It checks a real partial percentage, retained measurements while elapsed time updates, completion history/prompt, failure without success, and cancellation with stale-worker rejection. The same checks run before TLS/QR tests when PairFile is supplied.
