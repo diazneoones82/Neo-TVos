@@ -2,7 +2,9 @@ Neo TVLauncher
 Copyright 2026 Neo TVLauncher contributors
 Licensed under Apache License, Version 2.0 (see LICENSE).
 
-The current runtime uses Android framework APIs and platform fonts.
+The current runtime uses Android framework APIs and platform fonts by default.
+User-selected TTF/OTF fonts may be imported into Neo private storage; no such
+font files are bundled in the downloads or source.
 Cinematic assets are AI-generated artwork with custom orbital-flow, galaxy-drift
 and glow animation. Existing generated spacecraft and debris are retained unchanged.
 See docs/VISUAL-CREDITS.md for prompts and provenance.

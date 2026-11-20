@@ -22,7 +22,7 @@ final class NeoFlipClock extends LinearLayout {
         for(int i=0;i<5;i++) {
             if(i==1 || i==3) {
                 TextView colon=new TextView(context); colon.setText(":"); colon.setTextColor(theme.accent);
-                colon.setGravity(Gravity.CENTER); colon.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,32*unit);
+                colon.setTypeface(theme.clockTypeface());colon.setGravity(Gravity.CENTER); colon.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX,32*unit);
                 addView(colon,new LayoutParams(Math.round(16*unit),Math.round(64*unit)));
             } else {
                 Digit digit=new Digit(context,theme,unit); digits[n++]=digit;
@@ -63,9 +63,9 @@ final class NeoFlipClock extends LinearLayout {
                 camera.save();camera.rotateX(rotation);camera.getMatrix(matrix);camera.restore();
                 matrix.preTranslate(-w/2,-h*0.25f);matrix.postTranslate(w/2,h*0.25f);canvas.concat(matrix);
             }
-            paint.setColor(theme.text);paint.setTypeface(Typeface.create(theme.clockFont,Typeface.NORMAL));
+            paint.setColor(theme.text);paint.setTypeface(theme.clockTypeface());
             paint.setAlpha(Math.round(255*alpha));paint.setShadowLayer(1.5f*unit,0,unit,0x99030918);
-            paint.setTextSize(52*unit);paint.setTextAlign(Paint.Align.CENTER);
+            paint.setTextSize(52*unit);if(paint.measureText(value)>w*.92f)paint.setTextSize(52*unit*w*.92f/paint.measureText(value));paint.setTextAlign(Paint.Align.CENTER);
             Paint.FontMetrics metrics=paint.getFontMetrics();
             canvas.drawText(value,w/2,h/2-(metrics.ascent+metrics.descent)/2,paint);
             paint.clearShadowLayer();paint.setAlpha(255);

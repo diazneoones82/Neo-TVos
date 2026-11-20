@@ -9,7 +9,10 @@ import java.io.ByteArrayOutputStream;
 
 /** Shared theme tokens for the entire Neo shell, cards, menus, clocks and widgets. */
 final class NeoTheme {
-    String id, name, wallpaper, fontFamily, clockFont;
+    String id, name, wallpaper, fontFamily, clockFont;android.graphics.Typeface customText,customClock;
+    android.graphics.Typeface uiTypeface(){return customText!=null?customText:android.graphics.Typeface.create("inter".equals(fontFamily)?"sans-serif-medium":fontFamily,0);}
+    android.graphics.Typeface clockTypeface(){return customClock!=null?customClock:android.graphics.Typeface.create(clockFont,0);}
+    private static NeoTheme fonts(Context c,NeoTheme theme){theme.customText=NeoFonts.selected(c,false);theme.customClock=NeoFonts.selected(c,true);return theme;}
     float textScale;
     int accent, text, muted, glass, rim, focus, scrim, radius, motionMs, columns;
 
@@ -66,9 +69,9 @@ final class NeoTheme {
     static NeoTheme load(Context c) {
         try {
             String raw = c.getSharedPreferences("neo", 0).getString("theme_json", null);
-            if (raw != null) return parse(raw);
+            if (raw != null) return fonts(c,parse(raw));
         } catch (Exception ignored) { }
-        try { return parse(read(c.getAssets().open("neo/themes/aurora.json"))); }
+        try { return fonts(c,parse(read(c.getAssets().open("neo/themes/aurora.json")))); }
         catch (Exception e) { throw new IllegalStateException("Bundled theme missing", e); }
     }
 

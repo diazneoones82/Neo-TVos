@@ -29,12 +29,12 @@ public final class NeoInstallService extends Service {
     private volatile long received,total;
     private volatile long generation;
     private File folder;
-    private NeoInstallWire manifest;
+    private NeoInstallWire manifest;private NeoFontWire fontManifest;private String fontId="";private boolean fontsOnly;
     private int installSession=-1;
     private final Messenger endpoint=new Messenger(new Handler(Looper.getMainLooper(),request->{
         String operation=request.getData().getString("op","");
         if(request.replyTo!=null&&!listeners.contains(request.replyTo))listeners.add(request.replyTo);
-        if(operation.equals("start")){if(pairing==null&&!phase.equals("starting")){phase="starting";message="Opening secure local pairing";publish();disk.execute(this::open);}else publish();}
+        if(operation.equals("start")){if(pairing==null&&!phase.equals("starting")){fontsOnly=request.getData().getBoolean("fonts_only",false);phase="starting";message="Opening secure local pairing";publish();disk.execute(this::open);}else publish();}
         else if(operation.equals("status"))publish();
         else if(operation.equals("approve"))disk.execute(this::approve);
         else if(operation.equals("cancel")){generation++;disk.execute(()->cancel("Cancelled on TV"));}
@@ -45,7 +45,7 @@ public final class NeoInstallService extends Service {
     @Override public IBinder onBind(Intent intent){return endpoint.getBinder();}
     private synchronized JSONObject status(){
         JSONObject result=new JSONObject();try{result.put("state",phase).put("message",message).put("ticket",ticket).put("label",label).put("package",pkg).put("kind",kind).put("received",received).put("total",total)
-            .put("model",Build.MANUFACTURER+" "+Build.MODEL).put("android",Build.VERSION.RELEASE).put("sdk",Build.VERSION.SDK_INT).put("abis",new org.json.JSONArray(Arrays.asList(Build.SUPPORTED_ABIS)));
+            .put("supports_fonts",true).put("supports_apps",!fontsOnly).put("font_id",fontId).put("model",Build.MANUFACTURER+" "+Build.MODEL).put("android",Build.VERSION.RELEASE).put("sdk",Build.VERSION.SDK_INT).put("abis",new org.json.JSONArray(Arrays.asList(Build.SUPPORTED_ABIS)));
             if(pairing!=null)result.put("qr",pairing.text()).put("expires",pairing.expires);
         }catch(Exception ignored){}return result;
     }
@@ -92,6 +92,12 @@ public final class NeoInstallService extends Service {
             if(first[0].equals("GET")&&(first[1].equals("/info")||first[1].equals("/status"))){JSONObject result=status();result.remove("qr");respond(client.getOutputStream(),200,result);return;}
             if(!first[0].equals("POST")){respond(client.getOutputStream(),404,new JSONObject());return;}
             long length=Long.parseLong(headers.getOrDefault("content-length","-1"));if(length<0||length>NeoInstallWire.MAX_TOTAL+65536)throw new IOException("Invalid request length");
+            if(first[1].equals("/font")){
+                if(length>NeoFontWire.MAX_SIZE+512)throw new IOException("Font exceeds 10 MB limit");long version;
+                synchronized(this){if(Arrays.asList("receiving","review","installing","confirm").contains(phase)){respond(client.getOutputStream(),409,new JSONObject().put("error","Finish or cancel the current request first"));return;}phase="receiving";ticket=UUID.randomUUID().toString();uploadTicket=ticket;version=++generation;kind="font";fontId="";message="Receiving font from phone";received=0;total=length;}
+                receiveFont(in,length,version);respond(client.getOutputStream(),202,status());return;
+            }
+            if(fontsOnly&&(first[1].equals("/install")||first[1].equals("/store")))throw new IOException("This TV pairing screen accepts fonts only");
             if(first[1].equals("/install")){
                 long version;
                 synchronized(this){if(Arrays.asList("receiving","review","installing","confirm").contains(phase)){respond(client.getOutputStream(),409,new JSONObject().put("error","Finish or cancel the current TV request first"));return;}phase="receiving";ticket=UUID.randomUUID().toString();uploadTicket=ticket;version=++generation;kind="apk";received=0;total=length;}
@@ -107,6 +113,20 @@ public final class NeoInstallService extends Service {
             respond(client.getOutputStream(),404,new JSONObject());
         }catch(Exception failure){android.util.Log.w("NeoInstall","Connection ended: "+failure.getClass().getSimpleName()+": "+failure.getMessage());if(!uploadTicket.isEmpty()&&uploadTicket.equals(ticket)&&phase.equals("receiving")){cleanup();state("error","Transfer rejected: "+failure.getMessage()+". Nothing was installed.");}try{respond(client.getOutputStream(),422,new JSONObject().put("error",failure.getMessage()==null?"Invalid request":failure.getMessage()));}catch(Exception closed){}}
         finally{sockets.remove(socket);try{socket.close();}catch(IOException ignored){}}
+    }
+    private void receiveFont(DataInputStream input,long length,long version)throws Exception{
+        NeoFontWire transfer=NeoFontWire.read(input);if(transfer.length()!=length)throw new IOException("Font length mismatch");File staging;
+        synchronized(this){if(version!=generation)throw new IOException("Cancelled");cleanup();staging=new File(getCacheDir(),"remote-"+ticket);if(!staging.mkdir())throw new IOException("Cannot stage font");folder=staging;fontManifest=transfer;label=transfer.name;pkg="";}
+        publish();File font=new File(staging,"font.bin");MessageDigest digest=MessageDigest.getInstance("SHA-256");byte[] buffer=new byte[65536];long done=0,published=0;
+        try(FileOutputStream out=new FileOutputStream(font)){while(done<transfer.size){if(version!=generation)throw new IOException("Cancelled");int n=input.read(buffer,0,(int)Math.min(buffer.length,transfer.size-done));if(n<0)throw new EOFException();out.write(buffer,0,n);digest.update(buffer,0,n);done+=n;if(version==generation){received=done;if(done-published>262144){published=done;publish();}}}out.getFD().sync();}
+        if(!MessageDigest.isEqual(digest.digest(),transfer.digest))throw new IOException("Font hash mismatch");NeoFontWire.validate(font);android.graphics.Typeface.createFromFile(font);
+        synchronized(this){if(version!=generation)throw new IOException("Cancelled");phase="review";message="Font received and validated. Preview it, then approve import on this TV. It will not replace Android system fonts.";}publish();
+    }
+    private void approveFont(){
+        final long version=generation;final File staging=folder;final NeoFontWire transfer=fontManifest;
+        try{if(staging==null||transfer==null)throw new IOException("No staged font");File source=new File(staging,"font.bin");String extension=NeoFontWire.validate(source);StringBuilder digest=new StringBuilder();for(byte b:transfer.digest)digest.append(String.format(Locale.ROOT,"%02x",b&255));String id=digest+"."+extension;
+            synchronized(this){if(version!=generation)throw new IOException("Cancelled");File dir=NeoFonts.directory(this);if(!dir.isDirectory()&&!dir.mkdirs())throw new IOException("Font storage unavailable");File destination=NeoFonts.file(this,id);if(!destination.exists()){if(NeoFonts.list(this).size()>=20)throw new IOException("Remove an imported font first (20 font limit)");if(!source.renameTo(destination))throw new IOException("Cannot save font");}try(DataOutputStream out=new DataOutputStream(new FileOutputStream(new File(dir,id+".name")))){out.writeUTF(transfer.name);}fontId=id;cleanup();phase="font-installed";message="Font imported successfully. Choose Apply font on this TV, or select it later in Neo Settings > Fonts.";}publish();
+        }catch(Exception failure){if(version==generation){cleanup();state("error","Font was not imported: "+failure.getMessage());}}
     }
     private void receive(DataInputStream input,long length,long version)throws Exception{
         NeoInstallWire transfer=NeoInstallWire.read(input);if(transfer.length()!=length)throw new IOException("Upload length mismatch");
@@ -139,6 +159,7 @@ public final class NeoInstallService extends Service {
     }
     private void approve(){
         if(!phase.equals("review"))return;
+        if(kind.equals("font")){approveFont();return;}
         if(kind.equals("store")){state("store-open","Opening the official TV Play Store; finish installation there.");final String storePackage=pkg;main.post(()->{
             try{startActivity(new Intent(Intent.ACTION_VIEW,Uri.parse("market://details?id="+storePackage)).setPackage("com.android.vending").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));}
             catch(RuntimeException missing){state("error","Google Play Store is not installed on this TV. Transfer a compatible APK instead.");}
@@ -173,7 +194,7 @@ public final class NeoInstallService extends Service {
         cleanup();installSession=-1;
     }
     private synchronized void cancel(String reason){generation++;if(installSession>=0)try{getPackageManager().getPackageInstaller().abandonSession(installSession);}catch(RuntimeException ignored){}installSession=-1;cleanup();state("cancelled",reason);}
-    private synchronized void cleanup(){if(folder!=null){File[] files=folder.listFiles();if(files!=null)for(File file:files)if(file.isFile())file.delete();folder.delete();folder=null;}manifest=null;}
+    private synchronized void cleanup(){if(folder!=null){File[] files=folder.listFiles();if(files!=null)for(File file:files)if(file.isFile())file.delete();folder.delete();folder=null;}manifest=null;fontManifest=null;}
     private void closePairing(){pairing=null;if(server!=null)try{server.close();}catch(IOException ignored){}server=null;synchronized(sockets){for(Socket socket:sockets)try{socket.close();}catch(IOException ignored){}sockets.clear();}cancel("Pairing is closed");phase="closed";publish();}
     @Override public void onDestroy(){live=null;closePairing();main.removeCallbacksAndMessages(null);requests.shutdownNow();disk.shutdownNow();super.onDestroy();}
 }

@@ -14,17 +14,19 @@ import java.util.List;
 
 /** Real-device contracts for the replacement modules and process boundaries. */
 public final class NeoRuntimeInstrumentation extends Instrumentation {
-    private int checks;
+    private int checks;private boolean fontsOnly;
     private void require(boolean condition,String description){
         checks++;if(!condition)throw new AssertionError(description);
     }
-    @Override public void onCreate(Bundle options){super.onCreate(options);start();}
+    @Override public void onCreate(Bundle options){super.onCreate(options);fontsOnly=Boolean.parseBoolean(options.getString("fonts_only","false"));start();}
     @Override public void onStart(){
         Bundle report=new Bundle();
         final Thread testThread=Thread.currentThread();Thread watchdog=new Thread(()->{try{Thread.sleep(120000);if(testThread.isAlive()){Bundle failure=new Bundle();StringBuilder trace=new StringBuilder("FAIL: runtime test exceeded 120s\n");for(StackTraceElement frame:android.os.Looper.getMainLooper().getThread().getStackTrace())trace.append(frame).append('\n');failure.putString("stream",trace.toString());sendStatus(0,failure);android.os.Process.killProcess(android.os.Process.myPid());}}catch(InterruptedException stopped){}},"neo-test-watchdog");watchdog.setDaemon(true);watchdog.start();
         try{
+            if(fontsOnly){stage("fonts");fontContracts();report.putString("stream","PASS: "+checks+" font runtime assertions; native loading, launcher/clock selection, removal and default restoration\n");finish(-1,report);watchdog.interrupt();return;}
             stage("forecast");forecastContracts();
             stage("workers");processContracts();
+            stage("fonts");fontContracts();
             stage("Home");homeContracts();
             stage("space playback");spaceContracts();
             report.putString("stream","PASS: "+checks+" runtime assertions; forecast codecs, input adapter, control symbols, isolated workers, Home navigation and space video playback\n");
@@ -32,6 +34,17 @@ public final class NeoRuntimeInstrumentation extends Instrumentation {
         }catch(Throwable failure){
             report.putString("stream","FAIL: "+android.util.Log.getStackTraceString(failure));finish(0,report);watchdog.interrupt();
         }
+    }
+    private void fontContracts()throws Exception{
+        android.content.Context c=getTargetContext();android.content.SharedPreferences prefs=c.getSharedPreferences("neo",0);String oldText=prefs.getString("custom_text_font",""),oldClock=prefs.getString("custom_clock_font","");java.io.File source=new java.io.File("/system/fonts/Roboto-Regular.ttf");require(source.isFile(),"Android test font available");
+        java.io.File dir=NeoFonts.directory(c);dir.mkdirs();java.io.File temporary=java.io.File.createTempFile("neo-font-probe-",".tmp",c.getCacheDir());java.io.File imported=null;
+        try{try(java.io.InputStream in=new java.io.FileInputStream(source);java.io.OutputStream out=new java.io.FileOutputStream(temporary)){byte[] b=new byte[8192];for(int n;(n=in.read(b))!=-1;)out.write(b,0,n);out.write(java.util.UUID.randomUUID().toString().getBytes("UTF-8"));}
+            com.neotv.protocol.NeoFontWire.validate(temporary);byte[] hash=java.security.MessageDigest.getInstance("SHA-256").digest(java.nio.file.Files.readAllBytes(temporary.toPath()));StringBuilder id=new StringBuilder();for(byte b:hash)id.append(String.format(java.util.Locale.ROOT,"%02x",b&255));id.append(".ttf");imported=NeoFonts.file(c,id.toString());require(temporary.renameTo(imported),"Font saved in private library");require(NeoFonts.load(c,id.toString())!=null,"Android loads imported font");
+            NeoFonts.select(c,id.toString(),true,false);NeoTheme text=NeoTheme.load(c);require(text.customText!=null&&text.uiTypeface()==text.customText,"Imported launcher font selected");require(prefs.getString("custom_clock_font","").equals(oldClock),"Text selection preserves clock choice");
+            NeoFonts.select(c,id.toString(),false,true);NeoTheme both=NeoTheme.load(c);require(both.customClock!=null&&both.clockTypeface()==both.customClock,"Imported clock font selected");
+            boolean blocked=false;try{NeoFonts.file(c,"../escape.ttf");}catch(IllegalArgumentException expected){blocked=true;}require(blocked,"Font library rejects traversal");
+            NeoFonts.remove(c,id.toString());require(!imported.exists(),"Imported font can be removed");require(NeoFonts.selected(c,false)==null&&NeoFonts.selected(c,true)==null,"Removing active font restores theme fonts");
+        }finally{temporary.delete();if(imported!=null)imported.delete();prefs.edit().putString("custom_text_font",oldText).putString("custom_clock_font",oldClock).commit();}
     }
     private void stage(String name){Bundle status=new Bundle();status.putString("stream","Checking "+name+"\n");sendStatus(1,status);}
     private void forecastContracts() throws Exception {

@@ -52,7 +52,7 @@ public final class NeoHomeActivity extends Activity {
     private final List<App> apps = new ArrayList<>();
     private final List<View> cards = new ArrayList<>();
     private SharedPreferences prefs;
-    private NeoTheme theme;
+    private NeoTheme theme;private String loadedFontKey="";
     private FrameLayout root;
     private TextView headerTime, headerDate, heroLabel, weatherTitle, weatherNow, weatherDetails, weatherForecast;
     private NeoFlipClock heroTime, secondTime;
@@ -132,7 +132,7 @@ public final class NeoHomeActivity extends Activity {
     private TextView text(String value, float size, int color) {
         TextView t = new TextView(this); t.setText(value); t.setTextColor(color);
         t.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, px(size * theme.textScale));
-        t.setTypeface("inter".equals(theme.fontFamily) ? Typeface.create("sans-serif-medium",Typeface.NORMAL) : Typeface.create(theme.fontFamily,Typeface.NORMAL)); t.setIncludeFontPadding(false);
+        t.setTypeface(theme.uiTypeface()); t.setIncludeFontPadding(false);
         return t;
     }
     private LinearLayout column() {
@@ -145,6 +145,7 @@ public final class NeoHomeActivity extends Activity {
     }
 
     private void build() {
+        loadedFontKey=NeoFonts.key(this);
         if(heroTime!=null)heroTime.stop();if(secondTime!=null)secondTime.stop();
         theme = NeoTheme.load(this);
         if (prefs.getBoolean("reduced_motion",false)) theme.motionMs = 0;
@@ -182,7 +183,7 @@ public final class NeoHomeActivity extends Activity {
         weatherTitle = text("WEATHER", 9, theme.accent);weatherTitle.setMaxLines(1);weatherTitle.setEllipsize(android.text.TextUtils.TruncateAt.END);
         clockRow.addView(weatherTitle,new LinearLayout.LayoutParams(0,-2,1));
         LinearLayout timeColumn=column();timeColumn.setGravity(Gravity.RIGHT);
-        headerTime=text("",15,theme.text);headerTime.setTypeface(Typeface.MONOSPACE);headerTime.setGravity(Gravity.RIGHT);
+        headerTime=text("",15,theme.text);headerTime.setTypeface(theme.customClock!=null?theme.customClock:Typeface.MONOSPACE);headerTime.setGravity(Gravity.RIGHT);
         headerDate=text("",8,theme.muted);headerDate.setGravity(Gravity.RIGHT);
         timeColumn.addView(headerTime);timeColumn.addView(headerDate);
         clockRow.addView(timeColumn,new LinearLayout.LayoutParams(px(104),-2));
@@ -425,11 +426,18 @@ public final class NeoHomeActivity extends Activity {
     private String orderPreference(){return "all".equals(activeCategory)?"order":"category_order:"+activeCategory;}
 
     private void settingsMenu() {
-        menu("Neo TVLauncher Settings", Arrays.asList("Install apps remotely", "Screensaver", "App lock & parental controls", "App sections & categories", "Home controls", "Theme Studio", "Icon packs", "Clock & countdown", "Weather", "System updates", "Restore hidden apps", "Android TV settings", "Make Neo the Home launcher"),
+        menu("Neo TVLauncher Settings", Arrays.asList("Install apps remotely", "Screensaver", "App lock & parental controls", "App sections & categories", "Home controls", "Theme Studio", "Icon packs", "Clock & countdown", "Weather", "System updates", "Restore hidden apps", "Android TV settings", "Make Neo the Home launcher", "Fonts / install from phone"),
                 Arrays.asList(()->startActivity(new Intent(this,NeoRemoteInstallActivity.class)),this::screensaverMenu,this::parentalMenu,this::categoriesMenu,this::controlsMenu,this::themeMenu, this::iconPackMenu, this::clockMenu, this::showWeather,this::updatesMenu,
                 () -> { prefs.edit().remove("hidden").apply(); renderApps(); toast("Hidden apps restored"); },
-                () -> safeStart(new Intent(Settings.ACTION_SETTINGS)),this::homeSetup));
+                () -> safeStart(new Intent(Settings.ACTION_SETTINGS)),this::homeSetup,this::fontsMenu));
     }
+    private void fontsMenu(){
+        List<String> labels=new ArrayList<>();List<Runnable> actions=new ArrayList<>();labels.add("Receive font from phone (QR)");actions.add(()->startActivity(new Intent(this,NeoRemoteInstallActivity.class).putExtra("fonts_only",true)));
+        labels.add("Restore theme fonts");actions.add(()->{NeoFonts.select(this,"",true,true);theme=NeoTheme.load(this);build();toast("Theme fonts restored");});
+        for(NeoFonts.Entry font:NeoFonts.list(this)){labels.add(font.name);actions.add(()->fontOptions(font));}menu("Fonts — TTF / OTF",labels,actions);
+    }
+    private void fontOptions(NeoFonts.Entry font){menu(font.name,Arrays.asList("Use for launcher text","Use for clocks","Use for both","Remove imported font"),Arrays.asList(()->applyFont(font.id,true,false),()->applyFont(font.id,false,true),()->applyFont(font.id,true,true),()->menu("Remove "+font.name+"?",Arrays.asList("Remove font","Cancel"),Arrays.asList(()->{NeoFonts.remove(this,font.id);theme=NeoTheme.load(this);build();fontsMenu();},this::fontsMenu))));}
+    private void applyFont(String id,boolean text,boolean clock){try{NeoFonts.select(this,id,text,clock);theme=NeoTheme.load(this);build();toast("Font applied");}catch(Exception error){toast("Font could not be applied");}}
     private void renderCategoryBar(){
         if(categoryBar==null)return;categoryBar.removeAllViews();
         List<String> ids=new ArrayList<>();ids.add("all");for(String id:categories.ids())if(categories.enabled(id))ids.add(id);
@@ -717,7 +725,7 @@ public final class NeoHomeActivity extends Activity {
     }
     interface TextResult { void accept(String value); }
     private void edit(String title,String initial,boolean numeric,TextResult result) {
-        EditText input = new EditText(this); input.setSingleLine(true); input.setText(initial); input.setTextColor(theme.text);
+        EditText input = new EditText(this);input.setTypeface(theme.uiTypeface()); input.setSingleLine(true); input.setText(initial); input.setTextColor(theme.text);
         input.setBackground(theme.surface(unit,false)); input.setPadding(px(14),px(12),px(14),px(12));
         if(numeric)input.setInputType(InputType.TYPE_CLASS_NUMBER);
         AlertDialog dialog=new AlertDialog.Builder(this).setTitle(title).setView(input)
@@ -727,7 +735,7 @@ public final class NeoHomeActivity extends Activity {
     }
     private void toast(String message) { if(!closed)Toast.makeText(this,message,Toast.LENGTH_SHORT).show(); }
     @Override protected void onResume() {
-        super.onResume(); lastInteraction=android.os.SystemClock.elapsedRealtime();applySaverWakePolicy();handleLockedIntent(); resumed=true; main.removeCallbacks(ticker); main.post(ticker); refreshWeather(false);
+        super.onResume();if(theme!=null&&!NeoFonts.key(this).equals(loadedFontKey)){theme=NeoTheme.load(this);build();} lastInteraction=android.os.SystemClock.elapsedRealtime();applySaverWakePolicy();handleLockedIntent(); resumed=true; main.removeCallbacks(ticker); main.post(ticker); refreshWeather(false);
         worker.execute(() -> { List<App> found=discoverApps(); main.post(() -> { if(!closed) { apps.clear(); apps.addAll(found); renderApps(); } }); });
     }
     @Override protected void onPause() { resumed=false;stopAnalog(); main.removeCallbacks(ticker);if(heroTime!=null)heroTime.stop();if(secondTime!=null)secondTime.stop(); super.onPause(); }

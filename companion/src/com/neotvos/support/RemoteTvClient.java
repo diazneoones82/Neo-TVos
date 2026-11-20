@@ -57,5 +57,11 @@ final class RemoteTvClient {
             return response(connection);
         }finally{connection.disconnect();active=null;}
     }
+    JSONObject uploadFont(String name,File file,Progress progress)throws Exception{
+        final long version=cancelVersion;NeoFontWire.validate(file);MessageDigest hash=MessageDigest.getInstance("SHA-256");byte[] buffer=new byte[65536];long checked=0;if(progress!=null)progress.stage("Checking font file");
+        try(InputStream in=new FileInputStream(file)){for(int n;(n=in.read(buffer))!=-1;){if(version!=cancelVersion)throw new InterruptedIOException("Transfer cancelled");hash.update(buffer,0,n);checked+=n;if(progress!=null)progress.preparing(checked,file.length());}}
+        NeoFontWire font=new NeoFontWire(name,file.length(),hash.digest());if(version!=cancelVersion)throw new InterruptedIOException("Transfer cancelled");if(progress!=null)progress.stage("Sending font file");HttpsURLConnection connection=open("POST","/font",font.length());
+        try{try(OutputStream out=new BufferedOutputStream(connection.getOutputStream());InputStream in=new FileInputStream(file)){byte[] header=font.header();out.write(header);long sent=header.length;for(int n;(n=in.read(buffer))!=-1;){if(version!=cancelVersion)throw new InterruptedIOException("Transfer cancelled");out.write(buffer,0,n);sent+=n;if(progress!=null)progress.sent(sent,font.length());}}if(progress!=null)progress.stage("Waiting for TV font validation");return response(connection);}finally{connection.disconnect();active=null;}
+    }
     void disconnect(){cancelVersion++;HttpsURLConnection connection=active;if(connection!=null)connection.disconnect();active=null;}
 }

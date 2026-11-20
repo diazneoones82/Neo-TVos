@@ -80,3 +80,7 @@ On TV: **Neo Settings → Install apps remotely**. On phone: **Install apps remo
 The current runtime uses Neo-authored home, input, symbol and weather modules with separate Binder workers for catalog, weather, remote installation and theme validation. Android platform fonts supply the typography. Source is licensed under **Apache 2.0**; see [NOTICE](NOTICE). The cinematic scene uses an original AI-generated black hole and galaxies, with custom spatially advected orbital-flow animation and the existing generated spacecraft and debris. No external visualization or film footage is packaged. [Architecture and replacement validation](docs/ARCHITECTURE.md).
 
 Signing keys, ADB private keys, device reports and personal screenshots are not published. APKs are provided as GitHub Release assets rather than committed to the source tree.
+
+## Fonts from your phone
+
+Open **Neo Settings → Fonts / install from phone → Receive font from phone (QR)** on the TV. Scan in the companion, choose **Send font file to TV**, and pick a TTF/OTF file (up to 10 MB). Preview and approve on the TV, then apply to launcher text, clocks or both. Restore the theme font or remove imports in the same settings menu. [Font transfer steps](docs/REMOTE-APPS.md#install-fonts-from-your-phone).

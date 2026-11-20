@@ -22,3 +22,16 @@ Host checks are `tools/Test-Host.ps1` and `tools/Verify-Runtime.ps1`. TV checks 
 ## Companion action feedback
 
 `tools/Test-Phone.ps1 -Serial '<phone-serial>' -Adb '<adb.exe>' -ProgressOnly` exercises the actual phone UI and worker completion path without touching TV apps. It checks a real partial percentage, retained measurements while elapsed time updates, completion history/prompt, failure without success, and cancellation with stale-worker rejection. The same checks run before TLS/QR tests when PairFile is supplied.
+
+## Font import
+
+Open a font-only pairing screen on the TV, save its current QR URI privately and run:
+
+```powershell
+python .\tools\Test-RemoteFonts.py --pair-file '<private-pair-file>' --font '<local-test-font.ttf>'
+.\tools\Test-TV.ps1 -Serial '<TV-address:port>' -Adb '<adb.exe>' -FontsOnly
+```
+
+The LAN check rejects missing authorization, APK requests in font-only mode, unsafe names, incorrect hashes, unsupported data and excessive sizes. It stages an explicitly named test font, verifies review precedes import, checks busy refusal and cancels without approval. Use a disposable session with no personal request pending. The font-specific device test checks native font loading, separate launcher/clock selection, removal and default restoration; it preserves existing font choices.
+
+Finally exercise the real phone file picker: select an owned TTF/OTF file, confirm send, preview/approve on TV, apply to text and clocks, then restore defaults/remove the test import. Delete only the temporary phone file you created. Imported fonts are not packaged in the repository or downloads.

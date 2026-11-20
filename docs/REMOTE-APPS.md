@@ -43,3 +43,14 @@ The receiver uses TLS pinned to the scanned certificate, a random short-lived se
 ## Visible progress
 
 The companion shows file-check and transfer percentages, elapsed time, completed-stage checkmarks and completion prompts. During TV review or Android approval it shows an ongoing waiting bar; approve on the TV to advance. Installation completed appears only after the TV reports success. Errors and cancelled requests stop without a success indicator. A Play Store handoff confirms only that the store opened.
+
+## Install fonts from your phone
+
+1. On the TV open **Neo Settings → Fonts / install from phone → Receive font from phone (QR)**. This font-only mode does not need Android's Install unknown apps permission.
+2. On the phone open **Install apps or fonts remotely → Scan TV QR**, then confirm the TV model.
+3. Choose **Send font file to TV** and select a `.ttf` or `.otf` file using Android's file picker. Neo supports raw TrueType/OpenType files up to **10 MB**; ZIP, WOFF and font collections are not supported.
+4. Confirm sending. The progress card shows file checking, bytes sent and the TV result.
+5. On the TV, preview the sample and choose **Approve request** to save the font. Choose **Apply font**, then **Launcher text**, **Clocks**, or **Launcher and clocks**.
+6. Later, use **Neo Settings → Fonts** to select/remove imported fonts or **Restore theme fonts**. Up to 20 imported fonts are kept in Neo's private storage. They survive app updates and are removed if Neo's data is cleared or the app is uninstalled.
+
+The existing QR encryption, certificate pinning, expiry and per-request TV review also apply to fonts. Only Neo's own text/clocks change; Android and other apps' fonts are untouched. A font can also be sent through a normal app-pairing session on an updated TV.

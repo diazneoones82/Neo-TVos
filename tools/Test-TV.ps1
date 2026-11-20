@@ -1,6 +1,7 @@
 param(
     [Parameter(Mandatory=$true)][string]$Serial,
     [string]$Adb='adb',
+    [switch]$FontsOnly,
     [string]$KeyStore=(Join-Path $PSScriptRoot '..\neo\debug.keystore')
 )
 $ErrorActionPreference='Stop'
@@ -30,7 +31,8 @@ $restoreHome=($beforeEnabled -eq '1' -and ($beforeServices.Trim() -split ':') -c
 & $Adb -s $Serial install --no-incremental -r "$out\Neo-Runtime-Tests.apk"
 if($LASTEXITCODE){throw 'Test installation failed'}
 try{
-    $result=& $Adb -s $Serial shell am instrument -w com.tvos.neo.tests/com.tvos.neo.NeoRuntimeInstrumentation
+    if($FontsOnly){$result=& $Adb -s $Serial shell am instrument -w -e fonts_only true com.tvos.neo.tests/com.tvos.neo.NeoRuntimeInstrumentation}
+    else{$result=& $Adb -s $Serial shell am instrument -w com.tvos.neo.tests/com.tvos.neo.NeoRuntimeInstrumentation}
     $result|Tee-Object -FilePath "$out\runtime-results.txt"|Out-Host
     $summary=$result -join "`n"
     if($summary -notmatch 'PASS:' -or $summary -match 'FAIL:'){throw 'Runtime assertions failed'}

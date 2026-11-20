@@ -16,6 +16,8 @@ $protocolFiles=@(Get-ChildItem (Join-Path $root 'shared\src'),(Join-Path $root '
 if($LASTEXITCODE){throw 'Protocol test compilation failed'}
 & "$javaHome\bin\java.exe" -cp $out com.neotv.protocol.ProtocolTest
 if($LASTEXITCODE){throw 'QR/pairing/install-manifest tests failed'}
+& "$javaHome\bin\java.exe" -cp $out com.neotv.protocol.FontWireTest
+if($LASTEXITCODE){throw 'Font transfer validation tests failed'}
 & (Join-Path $root 'neo\tests\Test-AppLocks.ps1') -JavaHome $javaHome
 & (Join-Path $root 'neo\tests\Test-NeoCLI.ps1')
 $categoryOut=Join-Path $root 'neo\test-output\categories'
